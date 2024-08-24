@@ -12,7 +12,7 @@ import (
 )
 
 const changeUserById = `-- name: ChangeUserById :one
-update users set name = $2, updated_at = CURRENT_DATE where id = $1
+update users set name = $2, updated_at = now() where id = $1
     returning id, name, created_at, updated_at
 `
 
@@ -35,7 +35,7 @@ func (q *Queries) ChangeUserById(ctx context.Context, arg ChangeUserByIdParams) 
 
 const createUser = `-- name: CreateUser :one
 insert into users (id, name, created_at,  updated_at)
-values (gen_random_uuid(), $1, CURRENT_DATE, CURRENT_DATE)
+values (gen_random_uuid(), $1, now(), now())
 returning id, name, created_at, updated_at
 `
 
