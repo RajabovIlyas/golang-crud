@@ -17,6 +17,16 @@ func NewUserController(db *database.Queries) *UserController {
 	return &UserController{us: services.NewUsersService(db)}
 }
 
+// GetUsers List : Return list of users
+//
+//	@Summary		List all users
+//	@Description	List all users
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	models.User
+//	@Failure		500	{object}	models.ErrorModel
+//	@Router			/users/ [get]
 func (uc *UserController) GetUsers(c *gin.Context) {
 	users, err := uc.us.GetUsers(c.Request)
 
@@ -27,6 +37,17 @@ func (uc *UserController) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": common.DatabaseUsersToUsers(users)})
 }
 
+// GetUser Get : Return user by id
+//
+//	@Summary		Return user by id
+//	@Description	Return user by id
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"id"
+//	@Success		200	{object}	models.User
+//	@Failure		500	{object}	models.ErrorModel
+//	@Router			/users/{id} [get]
 func (uc *UserController) GetUser(c *gin.Context) {
 	userID := c.Param("userID")
 
@@ -37,9 +58,20 @@ func (uc *UserController) GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": common.DatabaseUserToUser(user)})
+	c.JSON(http.StatusOK, gin.H{"data": common.DatabaseUserToUser(user)})
 }
 
+// CreateUser Create : Creates new  user.
+//
+//	@Summary		Create new user record in Library
+//	@Description	Create new user record in Library
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		models.CreateOrChangeUser	true	"Add user"
+//	@Success		200		{object}	models.User
+//	@Failure		500		{object}	models.ErrorModel
+//	@Router			/users/ [post]
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var newUser models.CreateOrChangeUser
 	if err := c.BindJSON(&newUser); err != nil {
@@ -53,9 +85,21 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": common.DatabaseUserToUser(user)})
+	c.JSON(http.StatusOK, gin.H{"data": common.DatabaseUserToUser(user)})
 }
 
+// ChangeUser Update : Update user by id
+//
+//	@Summary		Update user details
+//	@Description	Update user details
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"id"
+//	@Param			user	body		models.CreateOrChangeUser	true	"Update user"
+//	@Success		200		{object}	models.User
+//	@Failure		500		{object}	models.ErrorModel
+//	@Router			/users/{id} [put]
 func (uc *UserController) ChangeUser(c *gin.Context) {
 	userID := c.Param("userID")
 
@@ -71,9 +115,20 @@ func (uc *UserController) ChangeUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": common.DatabaseUserToUser(user)})
+	c.JSON(http.StatusOK, gin.H{"data": common.DatabaseUserToUser(user)})
 }
 
+// DeleteUser Delete : Delete user by id
+//
+//	@Summary		Delete user record by id
+//	@Description	Delete user record by id
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"id"
+//	@Success		200	{object}	models.User
+//	@Failure		500	{object}	models.ErrorModel
+//	@Router			/users/{id} [delete]
 func (uc *UserController) DeleteUser(c *gin.Context) {
 	userID := c.Param("userID")
 
