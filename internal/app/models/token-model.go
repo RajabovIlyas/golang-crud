@@ -2,7 +2,7 @@ package models
 
 import "github.com/google/uuid"
 
-type TokenModel struct {
+type ResponseToken struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }

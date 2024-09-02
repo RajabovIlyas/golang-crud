@@ -8,9 +8,9 @@ import (
 )
 
 type Service interface {
-	Login(*http.Request, models.UserLogin) (models.TokenModel, error)
+	Login(*http.Request, models.UserLogin) (models.ResponseToken, error)
 	Logout(*http.Request, string) error
-	Register(*http.Request, models.CreateUser) (models.TokenModel, error)
-	Refresh(*http.Request, uuid.UUID) (models.TokenModel, error)
+	Register(*http.Request, models.CreateUser) (models.ResponseToken, error)
+	Refresh(*http.Request, uuid.UUID) (models.ResponseToken, error)
 	AuthMe(*http.Request, uuid.UUID) (database.FindUserByIdRow, error)
 }

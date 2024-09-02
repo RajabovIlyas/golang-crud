@@ -2,7 +2,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/robfig/cron/v3"
 )
@@ -18,7 +17,7 @@ func NewCronService(db *database.Queries) *CronJob {
 func (cs *CronJob) DeleteAllToken() {
 	c := cron.New()
 	_, err := c.AddFunc("0 0 * * *", func() {
-		fmt.Println("im here")
+
 		err := cs.db.DeleteOldTokens(context.Background())
 		if err != nil {
 			return

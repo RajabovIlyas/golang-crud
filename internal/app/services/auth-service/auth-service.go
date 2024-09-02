@@ -23,41 +23,41 @@ func NewAuthService(db *database.Queries) *AuthService {
 	return &AuthService{tokensService.NewTokensService(db), usersService.NewUsersService(db), &c}
 }
 
-func (as *AuthService) GenerateTokenByToken(token models.GenerateTokenModel) (models.TokenModel, error) {
+func (as *AuthService) GenerateTokenByToken(token models.GenerateTokenModel) (models.ResponseToken, error) {
 	at, err := utils.GenerateToken[uuid.UUID](token.AccessTokenKey, as.c.TokenSecret, &as.c.TokenExpiresIn)
 
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
 	rt, err := utils.GenerateToken[uuid.UUID](token.ID, as.c.TokenSecret, &as.c.TokenRefreshExpiresIn)
 
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
-	return models.TokenModel{AccessToken: at, RefreshToken: rt}, nil
+	return models.ResponseToken{AccessToken: at, RefreshToken: rt}, nil
 }
 
-func (as *AuthService) GenerateToken(r *http.Request, userID uuid.UUID) (models.TokenModel, error) {
+func (as *AuthService) GenerateToken(r *http.Request, userID uuid.UUID) (models.ResponseToken, error) {
 	token, err := as.ts.CreateToken(r, userID)
 
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
 	return as.GenerateTokenByToken(models.GenerateTokenModel{ID: token.ID, AccessTokenKey: token.AccessTokenKey})
 }
 
-func (as *AuthService) Login(r *http.Request, userLogin models.UserLogin) (models.TokenModel, error) {
+func (as *AuthService) Login(r *http.Request, userLogin models.UserLogin) (models.ResponseToken, error) {
 	user, err := as.us.FindUserByUserName(r, userLogin.Username)
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
 	err = utils.VerifyPassword(user.Password, userLogin.Password)
 	if err != nil {
-		return models.TokenModel{}, errors.New("invalid username or password")
+		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
 
 	return as.GenerateToken(r, user.ID)
@@ -67,21 +67,21 @@ func (as *AuthService) Logout(r *http.Request, accessTokenKey string) error {
 	return as.ts.DeleteTokenByAccessKey(r, accessTokenKey)
 }
 
-func (as *AuthService) Register(r *http.Request, newUser models.CreateUser) (models.TokenModel, error) {
+func (as *AuthService) Register(r *http.Request, newUser models.CreateUser) (models.ResponseToken, error) {
 	user, err := as.us.Register(r, newUser)
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
 	return as.GenerateToken(r, user.ID)
 }
 
-func (as *AuthService) Refresh(r *http.Request, refreshToken string) (models.TokenModel, error) {
+func (as *AuthService) Refresh(r *http.Request, refreshToken string) (models.ResponseToken, error) {
 	tokenID, err := utils.ValidateToken[string](refreshToken, as.c.TokenSecret)
 
 	token, err := as.ts.UpdateToken(r, tokenID)
 	if err != nil {
-		return models.TokenModel{}, err
+		return models.ResponseToken{}, err
 	}
 
 	return as.GenerateTokenByToken(models.GenerateTokenModel{ID: token.ID, AccessTokenKey: token.AccessTokenKey})
