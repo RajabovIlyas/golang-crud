@@ -2,31 +2,39 @@ package common
 
 import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
-	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
-	"os"
+	"github.com/spf13/viper"
+	"time"
 )
 
 type Config struct {
-	UrlDB string
-	Port  string
+	UrlDB string `mapstructure:"DB_URL"`
+	Port  string `mapstructure:"PORT"`
+
+	TokenSecret           string        `mapstructure:"TOKEN_SECRET"`
+	TokenExpiresIn        time.Duration `mapstructure:"TOKEN_EXPIRED_IN"`
+	TokenRefreshExpiresIn time.Duration `mapstructure:"TOKEN_REFRESH_EXPIRED_IN"`
+	TokenMaxAge           int           `mapstructure:"TOKEN_MAXAGE"`
 }
 
-func GetConfig() Config {
-	err := godotenv.Load(".env")
+func GetConfig(path string) (config Config, err error) {
+
+	viper.AddConfigPath(path)
+	viper.SetConfigType("env")
+	viper.SetConfigName("app")
+
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
 	if err != nil {
-		log.Warn().Msg(err.Error())
+		return
 	}
 
-	urlDB := os.Getenv("DB_URL")
-	if urlDB == "" {
-		log.Fatal().Msg("$DB_URL must be set")
-	}
+	err = viper.Unmarshal(&config)
 
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		port = constants.Port
+	if config.Port == "" {
+		config.Port = constants.Port
+		return
 	}
-	return Config{urlDB, ":" + port}
+	config.Port = ":" + config.Port
+	return
 }

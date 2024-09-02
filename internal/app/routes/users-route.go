@@ -4,10 +4,11 @@ func (r *Route) userRouter() {
 
 	users := r.v1.Group("/users")
 	{
-		users.GET("/", r.cu.GetUsers)
-		users.POST("/", r.cu.CreateUser)
-		users.GET("/:userID", r.cu.GetUser)
-		users.PUT("/:userID", r.cu.ChangeUser)
-		users.DELETE("/:userID", r.cu.DeleteUser)
+		users.GET("/", r.uc.GetUsers)
+		users.POST("/", r.uc.CreateUser)
+		users.POST("/password/:userID", r.uc.UpdateUserPassword)
+		users.GET("/:userID", r.uc.GetUser)
+		users.PUT("/:userID", r.uc.UpdateUser)
+		users.DELETE("/:userID", r.uc.DeleteUser)
 	}
 }

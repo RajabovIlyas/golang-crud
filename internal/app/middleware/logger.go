@@ -13,7 +13,9 @@ func Logger(c *gin.Context) {
 
 	if c.Writer.Status() >= http.StatusBadRequest {
 		log.Error().Fields(map[string]interface{}{
-			"error": c.Errors.ByType(gin.ErrorTypePrivate).String(),
+			"method": c.Request.Method,
+			"uri":    c.Request.URL.Path,
+			"error":  c.Errors.ByType(gin.ErrorTypePrivate).String(),
 		}).Msg("Response")
 		return
 	}

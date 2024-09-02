@@ -1,8 +1,10 @@
 basePath: /api/v1
 definitions:
-  models.CreateOrChangeUser:
+  models.CreateUser:
     properties:
-      name:
+      password:
+        type: string
+      username:
         type: string
     type: object
   models.ErrorModel:
@@ -10,15 +12,23 @@ definitions:
       error:
         type: string
     type: object
-  models.User:
+  models.Message:
     properties:
-      created_at:
+      message:
         type: string
+    type: object
+  models.ResponseUser:
+    properties:
       id:
         type: string
-      name:
+      username:
         type: string
-      updated_at:
+    type: object
+  models.UpdateUser:
+    properties:
+      id:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:3000
@@ -39,7 +49,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.ResponseUser'
         "500":
           description: Internal Server Error
           schema:
@@ -57,14 +67,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.CreateOrChangeUser'
+          $ref: '#/definitions/models.CreateUser'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.ResponseUser'
         "500":
           description: Internal Server Error
           schema:
@@ -89,7 +99,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.Message'
         "500":
           description: Internal Server Error
           schema:
@@ -113,7 +123,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.ResponseUser'
         "500":
           description: Internal Server Error
           schema:
@@ -136,14 +146,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.CreateOrChangeUser'
+          $ref: '#/definitions/models.UpdateUser'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.ResponseUser'
         "500":
           description: Internal Server Error
           schema:

@@ -26,7 +26,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -56,7 +56,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateOrChangeUser"
+                            "$ref": "#/definitions/models.CreateUser"
                         }
                     }
                 ],
@@ -64,7 +64,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -102,7 +102,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -139,7 +139,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateOrChangeUser"
+                            "$ref": "#/definitions/models.UpdateUser"
                         }
                     }
                 ],
@@ -147,7 +147,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -183,7 +183,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.Message"
                         }
                     },
                     "500": {
@@ -197,10 +197,13 @@
         }
     },
     "definitions": {
-        "models.CreateOrChangeUser": {
+        "models.CreateUser": {
             "type": "object",
             "properties": {
-                "name": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -213,19 +216,32 @@
                 }
             }
         },
-        "models.User": {
+        "models.Message": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "message": {
                     "type": "string"
-                },
+                }
+            }
+        },
+        "models.ResponseUser": {
+            "type": "object",
+            "properties": {
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateUser": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 },
-                "updated_at": {
+                "username": {
                     "type": "string"
                 }
             }

@@ -1,7 +1,9 @@
 package routes
 
 import (
-	"github.com/RajabovIlyas/golang-crud/internal/app/controllers"
+	authController "github.com/RajabovIlyas/golang-crud/internal/app/controllers/auth-controller"
+	"github.com/RajabovIlyas/golang-crud/internal/app/controllers/users-controller"
+	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -10,17 +12,26 @@ import (
 
 type Route struct {
 	g  *gin.Engine
-	cu *controllers.UserController
+	uc *usersController.UsersController
+	ac *authController.AuthController
 	v1 *gin.RouterGroup
+	dm *middleware.DeserializeMiddleware
 }
 
 func New(gin *gin.Engine, queries *database.Queries) *Route {
-	return &Route{gin, controllers.NewUserController(queries), gin.Group("/api/v1")}
+	return &Route{gin,
+		usersController.NewUsersController(queries),
+		authController.NewAuthController(queries),
+		gin.Group("/api/v1"),
+		middleware.NewDeserializeMiddleware(queries),
+	}
 }
 
 func (r *Route) PaveRoutes() {
 
 	r.v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	r.authRouter()
 
 	r.userRouter()
 }

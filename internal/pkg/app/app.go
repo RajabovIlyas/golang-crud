@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/internal/app/cron"
 	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
 	"github.com/RajabovIlyas/golang-crud/internal/app/routes"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
@@ -21,7 +22,13 @@ func New() (*App, error) {
 
 	a := &App{}
 
-	a.c = common.GetConfig()
+	config, err := common.GetConfig(".")
+
+	if err != nil {
+		return nil, err
+	}
+
+	a.c = config
 
 	conn, err := sql.Open("postgres", a.c.UrlDB)
 	if err != nil {
@@ -34,7 +41,13 @@ func New() (*App, error) {
 
 	a.g.Use(middleware.Logger)
 
-	a.r = routes.New(a.g, database.New(conn))
+	db := database.New(conn)
+
+	cs := cron.NewCronService(db)
+
+	cs.DeleteAllToken()
+
+	a.r = routes.New(a.g, db)
 
 	a.r.PaveRoutes()
 

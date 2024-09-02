@@ -32,7 +32,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -62,7 +62,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateOrChangeUser"
+                            "$ref": "#/definitions/models.CreateUser"
                         }
                     }
                 ],
@@ -70,7 +70,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -108,7 +108,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -145,7 +145,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateOrChangeUser"
+                            "$ref": "#/definitions/models.UpdateUser"
                         }
                     }
                 ],
@@ -153,7 +153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.ResponseUser"
                         }
                     },
                     "500": {
@@ -189,7 +189,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.Message"
                         }
                     },
                     "500": {
@@ -203,10 +203,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.CreateOrChangeUser": {
+        "models.CreateUser": {
             "type": "object",
             "properties": {
-                "name": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -219,19 +222,32 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
+        "models.Message": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "message": {
                     "type": "string"
-                },
+                }
+            }
+        },
+        "models.ResponseUser": {
+            "type": "object",
+            "properties": {
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateUser": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 },
-                "updated_at": {
+                "username": {
                     "type": "string"
                 }
             }

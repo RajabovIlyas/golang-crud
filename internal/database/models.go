@@ -10,9 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type Token struct {
+	ID             uuid.UUID
+	AccessTokenKey uuid.UUID
+	UserID         uuid.UUID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type User struct {
 	ID        uuid.UUID
-	Name      string
+	Username  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Password  string
 }
