@@ -3,6 +3,8 @@
 http
 log
 
+uploads
+
 
 *.http
 *.exe

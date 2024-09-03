@@ -1,3 +1,5 @@
 package constants
 
-const Port = "3000"
+const PORT = "3000"
+
+const ENDPOINT_V1 = "/api/v1"

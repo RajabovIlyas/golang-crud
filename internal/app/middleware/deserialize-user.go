@@ -42,14 +42,14 @@ func (dm *DeserializeMiddleware) DeserializeUser() gin.HandlerFunc {
 			return
 		}
 
-		accessToken, err := dm.ts.FindTokenByAccessKey(ctx.Request, accessKey)
+		accessToken, err := dm.ts.FindTokenByAccessKey(ctx.Request.Context(), accessKey)
 
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
 			return
 		}
 
-		user, err := dm.us.FindUserById(ctx.Request, accessToken.UserID)
+		user, err := dm.us.FindUserById(ctx.Request.Context(), accessToken.UserID)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "the user belonging to this token no logger exists"})
 			return

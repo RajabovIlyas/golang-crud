@@ -32,13 +32,13 @@ func NewAuthController(db *database.Queries) *AuthController {
 func (ac *AuthController) Login(c *gin.Context) {
 	var newUser models.UserLogin
 	if err := c.BindJSON(&newUser); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	token, err := ac.as.Login(c.Request, newUser)
+	token, err := ac.as.Login(c.Request.Context(), newUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -59,14 +59,14 @@ func (ac *AuthController) Login(c *gin.Context) {
 func (ac *AuthController) Registration(c *gin.Context) {
 	var newUser models.CreateUser
 	if err := c.BindJSON(&newUser); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	token, err := ac.as.Register(c.Request, newUser)
+	token, err := ac.as.Register(c.Request.Context(), newUser)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -87,9 +87,9 @@ func (ac *AuthController) Registration(c *gin.Context) {
 //	@Router			/auth/logout [post]
 func (ac *AuthController) LogoutMe(c *gin.Context) {
 	accessTokenKey, _ := c.Get("accessTokenKey")
-	err := ac.as.Logout(c.Request, fmt.Sprintf("%v", accessTokenKey))
+	err := ac.as.Logout(c.Request.Context(), fmt.Sprintf("%v", accessTokenKey))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -112,10 +112,10 @@ func (ac *AuthController) AuthMe(c *gin.Context) {
 
 	userID, _ := c.Get("userID")
 
-	user, err := ac.as.AuthMe(c.Request, fmt.Sprintf("%v", userID))
+	user, err := ac.as.AuthMe(c.Request.Context(), fmt.Sprintf("%v", userID))
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -136,14 +136,14 @@ func (ac *AuthController) AuthMe(c *gin.Context) {
 func (ac *AuthController) RefreshToken(c *gin.Context) {
 	var refreshToken models.RefreshTokenModel
 	if err := c.BindJSON(&refreshToken); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	newToken, err := ac.as.Refresh(c.Request, refreshToken.RefreshToken)
+	newToken, err := ac.as.Refresh(c.Request.Context(), refreshToken.RefreshToken)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 

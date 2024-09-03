@@ -1,12 +1,12 @@
 package usersService
 
 import (
+	"context"
 	"github.com/RajabovIlyas/golang-crud/internal/app/common"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/google/uuid"
-	"net/http"
 )
 
 type UsersService struct {
@@ -19,58 +19,58 @@ func NewUsersService(db *database.Queries) *UsersService {
 	return &UsersService{db, &c}
 }
 
-func (us *UsersService) FindUsers(r *http.Request) ([]database.FindUsersRow, error) {
-	return us.db.FindUsers(r.Context())
+func (us *UsersService) FindUsers(c context.Context) ([]database.FindUsersRow, error) {
+	return us.db.FindUsers(c)
 }
 
-func (us *UsersService) FindUserById(r *http.Request, userID uuid.UUID) (database.FindUserByIdRow, error) {
-	return us.db.FindUserById(r.Context(), userID)
+func (us *UsersService) FindUserById(c context.Context, userID uuid.UUID) (database.FindUserByIdRow, error) {
+	return us.db.FindUserById(c, userID)
 }
 
-func (us *UsersService) CreateUser(r *http.Request, newUser models.CreateUser) (database.CreateUserRow, error) {
-	return us.db.CreateUser(r.Context(), database.CreateUserParams{Username: newUser.Username, Password: newUser.Password})
+func (us *UsersService) CreateUser(c context.Context, newUser models.CreateUser) (database.CreateUserRow, error) {
+	return us.db.CreateUser(c, database.CreateUserParams{Username: newUser.Username, Password: newUser.Password})
 }
 
-func (us *UsersService) UpdateUser(r *http.Request, userIDStr string, changeUser models.UpdateUser) (database.UpdateUserByIdRow, error) {
+func (us *UsersService) UpdateUser(c context.Context, userIDStr string, changeUser models.UpdateUser) (database.UpdateUserByIdRow, error) {
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		return database.UpdateUserByIdRow{}, err
 	}
-	return us.db.UpdateUserById(r.Context(), database.UpdateUserByIdParams{
+	return us.db.UpdateUserById(c, database.UpdateUserByIdParams{
 		ID:       userID,
 		Username: changeUser.Username,
 	})
 }
 
-func (us *UsersService) DeleteUser(r *http.Request, userIDStr string) error {
+func (us *UsersService) DeleteUser(c context.Context, userIDStr string) error {
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		return err
 	}
-	return us.db.DeleteUserById(r.Context(), userID)
+	return us.db.DeleteUserById(c, userID)
 }
 
-func (us *UsersService) FindUserByUserName(r *http.Request, username string) (database.FindUserByUsernameRow, error) {
-	return us.db.FindUserByUsername(r.Context(), username)
+func (us *UsersService) FindUserByUserName(c context.Context, username string) (database.FindUserByUsernameRow, error) {
+	return us.db.FindUserByUsername(c, username)
 }
 
-func (us *UsersService) UpdateUserPasswordById(r *http.Request, updateUser models.UpdatePassword) (database.UpdateUserPasswordByIdRow, error) {
+func (us *UsersService) UpdateUserPasswordById(c context.Context, updateUser models.UpdatePassword) (database.UpdateUserPasswordByIdRow, error) {
 	newUserPassword, _ := utils.HashPassword(updateUser.Password)
 	userID, err := uuid.Parse(updateUser.ID)
 	if err != nil {
 		return database.UpdateUserPasswordByIdRow{}, err
 	}
-	return us.db.UpdateUserPasswordById(r.Context(), database.UpdateUserPasswordByIdParams{
+	return us.db.UpdateUserPasswordById(c, database.UpdateUserPasswordByIdParams{
 		Password: newUserPassword,
 		ID:       userID,
 	})
 }
 
-func (us *UsersService) Logout(r *http.Request) {}
+func (us *UsersService) Logout(c context.Context) {}
 
-func (us *UsersService) Register(r *http.Request, user models.CreateUser) (database.CreateUserRow, error) {
+func (us *UsersService) Register(c context.Context, user models.CreateUser) (database.CreateUserRow, error) {
 	hashedPassword, _ := utils.HashPassword(user.Password)
 	user.Password = hashedPassword
 
-	return us.CreateUser(r, user)
+	return us.CreateUser(c, user)
 }

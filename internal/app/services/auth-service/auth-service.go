@@ -1,6 +1,7 @@
 package authService
 
 import (
+	"context"
 	"errors"
 	"github.com/RajabovIlyas/golang-crud/internal/app/common"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
@@ -9,7 +10,6 @@ import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/google/uuid"
-	"net/http"
 )
 
 type AuthService struct {
@@ -39,8 +39,8 @@ func (as *AuthService) GenerateTokenByToken(token models.GenerateTokenModel) (mo
 	return models.ResponseToken{AccessToken: at, RefreshToken: rt}, nil
 }
 
-func (as *AuthService) GenerateToken(r *http.Request, userID uuid.UUID) (models.ResponseToken, error) {
-	token, err := as.ts.CreateToken(r, userID)
+func (as *AuthService) GenerateToken(c context.Context, userID uuid.UUID) (models.ResponseToken, error) {
+	token, err := as.ts.CreateToken(c, userID)
 
 	if err != nil {
 		return models.ResponseToken{}, err
@@ -49,8 +49,8 @@ func (as *AuthService) GenerateToken(r *http.Request, userID uuid.UUID) (models.
 	return as.GenerateTokenByToken(models.GenerateTokenModel{ID: token.ID, AccessTokenKey: token.AccessTokenKey})
 }
 
-func (as *AuthService) Login(r *http.Request, userLogin models.UserLogin) (models.ResponseToken, error) {
-	user, err := as.us.FindUserByUserName(r, userLogin.Username)
+func (as *AuthService) Login(c context.Context, userLogin models.UserLogin) (models.ResponseToken, error) {
+	user, err := as.us.FindUserByUserName(c, userLogin.Username)
 	if err != nil {
 		return models.ResponseToken{}, err
 	}
@@ -60,26 +60,26 @@ func (as *AuthService) Login(r *http.Request, userLogin models.UserLogin) (model
 		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
 
-	return as.GenerateToken(r, user.ID)
+	return as.GenerateToken(c, user.ID)
 }
 
-func (as *AuthService) Logout(r *http.Request, accessTokenKey string) error {
-	return as.ts.DeleteTokenByAccessKey(r, accessTokenKey)
+func (as *AuthService) Logout(c context.Context, accessTokenKey string) error {
+	return as.ts.DeleteTokenByAccessKey(c, accessTokenKey)
 }
 
-func (as *AuthService) Register(r *http.Request, newUser models.CreateUser) (models.ResponseToken, error) {
-	user, err := as.us.Register(r, newUser)
+func (as *AuthService) Register(c context.Context, newUser models.CreateUser) (models.ResponseToken, error) {
+	user, err := as.us.Register(c, newUser)
 	if err != nil {
 		return models.ResponseToken{}, err
 	}
 
-	return as.GenerateToken(r, user.ID)
+	return as.GenerateToken(c, user.ID)
 }
 
-func (as *AuthService) Refresh(r *http.Request, refreshToken string) (models.ResponseToken, error) {
+func (as *AuthService) Refresh(c context.Context, refreshToken string) (models.ResponseToken, error) {
 	tokenID, err := utils.ValidateToken[string](refreshToken, as.c.TokenSecret)
 
-	token, err := as.ts.UpdateToken(r, tokenID)
+	token, err := as.ts.UpdateToken(c, tokenID)
 	if err != nil {
 		return models.ResponseToken{}, err
 	}
@@ -87,11 +87,11 @@ func (as *AuthService) Refresh(r *http.Request, refreshToken string) (models.Res
 	return as.GenerateTokenByToken(models.GenerateTokenModel{ID: token.ID, AccessTokenKey: token.AccessTokenKey})
 }
 
-func (as *AuthService) AuthMe(r *http.Request, userIDStr string) (database.FindUserByIdRow, error) {
+func (as *AuthService) AuthMe(c context.Context, userIDStr string) (database.FindUserByIdRow, error) {
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		return database.FindUserByIdRow{}, err
 	}
 
-	return as.us.FindUserById(r, userID)
+	return as.us.FindUserById(c, userID)
 }

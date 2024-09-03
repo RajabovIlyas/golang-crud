@@ -29,10 +29,10 @@ func NewUsersController(db *database.Queries) *UsersController {
 //	@Failure		500	{object}	models.ErrorModel
 //	@Router			/users/ [get]
 func (uc *UsersController) GetUsers(c *gin.Context) {
-	users, err := uc.us.FindUsers(c.Request)
+	users, err := uc.us.FindUsers(c.Request.Context())
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -55,14 +55,14 @@ func (uc *UsersController) GetUser(c *gin.Context) {
 
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	user, err := uc.us.FindUserById(c.Request, userID)
+	user, err := uc.us.FindUserById(c.Request.Context(), userID)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -83,13 +83,13 @@ func (uc *UsersController) GetUser(c *gin.Context) {
 func (uc *UsersController) CreateUser(c *gin.Context) {
 	var newUser models.CreateUser
 	if err := c.BindJSON(&newUser); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	user, err := uc.us.CreateUser(c.Request, newUser)
+	user, err := uc.us.CreateUser(c.Request.Context(), newUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -113,13 +113,13 @@ func (uc *UsersController) UpdateUser(c *gin.Context) {
 
 	var updateUser models.UpdateUser
 	if err := c.BindJSON(&updateUser); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	user, err := uc.us.UpdateUser(c.Request, userID, updateUser)
+	user, err := uc.us.UpdateUser(c.Request.Context(), userID, updateUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -140,9 +140,9 @@ func (uc *UsersController) UpdateUser(c *gin.Context) {
 func (uc *UsersController) DeleteUser(c *gin.Context) {
 	userID := c.Param("userID")
 
-	err := uc.us.DeleteUser(c.Request, userID)
+	err := uc.us.DeleteUser(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
@@ -163,15 +163,15 @@ func (uc *UsersController) DeleteUser(c *gin.Context) {
 func (uc *UsersController) UpdateUserPassword(c *gin.Context) {
 	var updatePassword models.UpdatePassword
 	if err := c.BindJSON(&updatePassword); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
 	updatePassword.ID = c.Param("userID")
 
-	user, err := uc.us.UpdateUserPasswordById(c.Request, updatePassword)
+	user, err := uc.us.UpdateUserPasswordById(c.Request.Context(), updatePassword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
