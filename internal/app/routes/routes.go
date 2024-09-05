@@ -6,8 +6,9 @@ import (
 	filesController "github.com/RajabovIlyas/golang-crud/internal/app/controllers/files-controller"
 	"github.com/RajabovIlyas/golang-crud/internal/app/controllers/users-controller"
 	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 )
@@ -21,13 +22,13 @@ type Route struct {
 	fc *filesController.FilesController
 }
 
-func New(gin *gin.Engine, queries *database.Queries) *Route {
+func New(gin *gin.Engine, redisClient *redis.Client, params *models.DBConfigParam) *Route {
 	return &Route{gin,
-		usersController.NewUsersController(queries),
-		authController.NewAuthController(queries),
+		usersController.NewUsersController(params),
+		authController.NewAuthController(params),
 		gin.Group(constants.ENDPOINT_V1),
-		middleware.NewDeserializeMiddleware(queries),
-		filesController.NewFilesController(queries),
+		middleware.NewDeserializeMiddleware(params),
+		filesController.NewFilesController(params),
 	}
 }
 

@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/services/tokens-service"
 	"github.com/RajabovIlyas/golang-crud/internal/app/services/users-service"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -14,10 +14,11 @@ import (
 type DeserializeMiddleware struct {
 	us *usersService.UsersService
 	ts *tokensService.TokensService
+	c  *config.Config
 }
 
-func NewDeserializeMiddleware(db *database.Queries) *DeserializeMiddleware {
-	return &DeserializeMiddleware{usersService.NewUsersService(db), tokensService.NewTokensService(db)}
+func NewDeserializeMiddleware(p *models.DBConfigParam) *DeserializeMiddleware {
+	return &DeserializeMiddleware{usersService.NewUsersService(p), tokensService.NewTokensService(p), p.C}
 }
 
 func (dm *DeserializeMiddleware) DeserializeUser() gin.HandlerFunc {
@@ -31,27 +32,26 @@ func (dm *DeserializeMiddleware) DeserializeUser() gin.HandlerFunc {
 		}
 
 		if token == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "You are not logged in"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You are not logged in"})
 			return
 		}
 
-		config, _ := common.GetConfig(".")
-		accessKey, err := utils.ValidateToken[string](token, config.TokenSecret)
+		accessKey, err := utils.ValidateToken[string](token, dm.c.Server.JwtSecretKey)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You access token is invalid"})
 			return
 		}
 
 		accessToken, err := dm.ts.FindTokenByAccessKey(ctx.Request.Context(), accessKey)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You access token is invalid"})
 			return
 		}
 
 		user, err := dm.us.FindUserById(ctx.Request.Context(), accessToken.UserID)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "the user belonging to this token no logger exists"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, models.Message{"You access token is invalid"})
 			return
 		}
 

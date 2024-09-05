@@ -3,8 +3,7 @@ package usersController
 import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/services/users-service"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -14,8 +13,8 @@ type UsersController struct {
 	us *usersService.UsersService
 }
 
-func NewUsersController(db *database.Queries) *UsersController {
-	return &UsersController{us: usersService.NewUsersService(db)}
+func NewUsersController(p *models.DBConfigParam) *UsersController {
+	return &UsersController{us: usersService.NewUsersService(p)}
 }
 
 // GetUsers List : Return list of users
@@ -36,7 +35,7 @@ func (uc *UsersController) GetUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"users": utils.DatabaseResponseUsersToResponseUsers(users)})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUsersToResponseUsers(users))
 }
 
 // GetUser Get : Return user by id
@@ -66,7 +65,7 @@ func (uc *UsersController) GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user))})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user)))
 }
 
 // CreateUser Create : Creates new  user.
@@ -93,7 +92,7 @@ func (uc *UsersController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user))})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user)))
 }
 
 // UpdateUser Update : Update user by id
@@ -103,7 +102,7 @@ func (uc *UsersController) CreateUser(c *gin.Context) {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string						true	"id"
+//	@Param			id		path		string				true	"id"
 //	@Param			user	body		models.UpdateUser	true	"Update user"
 //	@Success		200		{object}	models.ResponseUser
 //	@Failure		500		{object}	models.ErrorModel
@@ -123,7 +122,7 @@ func (uc *UsersController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user))})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user)))
 }
 
 // DeleteUser Delete : Delete user by id
@@ -146,7 +145,7 @@ func (uc *UsersController) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Delete user successfully!"})
+	c.JSON(http.StatusOK, models.Message{Message: "Delete user successfully!"})
 }
 
 // UpdateUserPassword Update : Update user password by id
@@ -175,5 +174,5 @@ func (uc *UsersController) UpdateUserPassword(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user))})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user)))
 }

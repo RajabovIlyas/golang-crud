@@ -3,8 +3,8 @@ package filesController
 import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/services/files-service"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -14,8 +14,8 @@ type FilesController struct {
 	fs *filesService.FilesService
 }
 
-func NewFilesController(db *database.Queries) *FilesController {
-	return &FilesController{fs: filesService.NewFilesService(db)}
+func NewFilesController(p *models.DBConfigParam) *FilesController {
+	return &FilesController{fs: filesService.NewFilesService(p)}
 }
 
 func (fc *FilesController) UploadFile(c *gin.Context) {

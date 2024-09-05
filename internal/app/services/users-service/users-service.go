@@ -2,21 +2,21 @@ package usersService
 
 import (
 	"context"
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/google/uuid"
 )
 
 type UsersService struct {
 	db *database.Queries
-	c  *common.Config
+	c  *config.Config
 }
 
-func NewUsersService(db *database.Queries) *UsersService {
-	c, _ := common.GetConfig(".")
-	return &UsersService{db, &c}
+func NewUsersService(p *models.DBConfigParam) *UsersService {
+
+	return &UsersService{db: p.DB, c: p.C}
 }
 
 func (us *UsersService) FindUsers(c context.Context) ([]database.FindUsersRow, error) {

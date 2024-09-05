@@ -1,4 +1,4 @@
-package common
+package logger
 
 import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/constants"

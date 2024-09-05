@@ -2,8 +2,8 @@ package cron
 
 import (
 	"context"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	tokensService "github.com/RajabovIlyas/golang-crud/internal/app/services/tokens-service"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/robfig/cron/v3"
 )
 
@@ -11,8 +11,8 @@ type CronJob struct {
 	ts *tokensService.TokensService
 }
 
-func NewCronService(db *database.Queries) *CronJob {
-	return &CronJob{ts: tokensService.NewTokensService(db)}
+func NewCronService(p *models.DBConfigParam) *CronJob {
+	return &CronJob{ts: tokensService.NewTokensService(p)}
 }
 
 func (cs *CronJob) DeleteAllToken() {

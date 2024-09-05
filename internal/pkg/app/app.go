@@ -1,62 +1,60 @@
 package app
 
 import (
-	"database/sql"
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
+	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
 	"github.com/RajabovIlyas/golang-crud/internal/app/cron"
 	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/routes"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/postgres"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/redis"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/logger"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 )
 
-type App struct {
-	g *gin.Engine
-	r *routes.Route
-	c common.Config
-}
+func Run() error {
 
-func New() (*App, error) {
-
-	a := &App{}
-
-	config, err := common.GetConfig(".")
+	loadConfig, err := config.LoadConfig(constants.CONFIG_FILE_PATH)
 
 	if err != nil {
-		return nil, err
+		log.Fatal().Msg("load config error:" + err.Error())
+		return err
 	}
 
-	a.c = config
+	c, _ := config.ParseConfig(loadConfig)
 
-	conn, err := sql.Open("postgres", a.c.UrlDB)
+	db, cdb, err := postgres.NewPsqlDB(c)
+
 	if err != nil {
 		log.Fatal().Msg("db connection error:" + err.Error())
+		return err
 	}
 
-	common.Logger()
+	p := &models.DBConfigParam{db, c}
 
-	a.g = gin.Default()
+	rc := redis.NewRedisClient(c)
 
-	a.g.Use(middleware.Logger)
+	logger.Logger()
 
-	db := database.New(conn)
+	g := gin.Default()
 
-	cs := cron.NewCronService(db)
+	g.Use(middleware.Logger)
+
+	cs := cron.NewCronService(p)
 
 	cs.DeleteAllToken()
 
-	a.r = routes.New(a.g, db)
+	r := routes.New(g, rc, p)
 
-	a.r.PaveRoutes()
+	r.PaveRoutes()
 
-	return a, nil
-}
-
-func (a *App) Run() error {
 	log.Info().Msg("Server started")
 
-	err := a.g.Run(a.c.Port)
-	return err
+	defer postgres.DisconnectPsqlDB(cdb)
+	defer redis.DisconnectRedis(rc)
+
+	return g.Run(c.Server.Port)
 }

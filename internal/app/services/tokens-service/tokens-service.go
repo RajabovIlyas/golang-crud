@@ -2,19 +2,19 @@ package tokensService
 
 import (
 	"context"
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/google/uuid"
 )
 
 type TokensService struct {
 	db *database.Queries
-	c  *common.Config
+	c  *config.Config
 }
 
-func NewTokensService(db *database.Queries) *TokensService {
-	c, _ := common.GetConfig(".")
-	return &TokensService{db, &c}
+func NewTokensService(p *models.DBConfigParam) *TokensService {
+	return &TokensService{p.DB, p.C}
 }
 
 func (ts *TokensService) FindTokenById(c context.Context, id string) (database.FindTokenByIdRow, error) {

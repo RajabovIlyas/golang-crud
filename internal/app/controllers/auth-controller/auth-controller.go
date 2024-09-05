@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/services/auth-service"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,8 +13,8 @@ type AuthController struct {
 	as *authService.AuthService
 }
 
-func NewAuthController(db *database.Queries) *AuthController {
-	return &AuthController{authService.NewAuthService(db)}
+func NewAuthController(p *models.DBConfigParam) *AuthController {
+	return &AuthController{authService.NewAuthService(p)}
 }
 
 // Login
@@ -42,7 +41,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"tokens": token})
+	c.JSON(http.StatusOK, token)
 }
 
 // Registration
@@ -70,20 +69,20 @@ func (ac *AuthController) Registration(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, token)
 }
 
 // LogoutMe .
 //
-// @Security ApiKeyAuth
+//	@Security		ApiKeyAuth
 //
 //	@Summary		Logout user
 //	@Description	Logout user
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	models.Message
-//	@Failure		500		{object}	models.ErrorModel
+//	@Success		200	{object}	models.Message
+//	@Failure		500	{object}	models.ErrorModel
 //	@Router			/auth/logout [post]
 func (ac *AuthController) LogoutMe(c *gin.Context) {
 	accessTokenKey, _ := c.Get("accessTokenKey")
@@ -93,20 +92,20 @@ func (ac *AuthController) LogoutMe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+	c.JSON(http.StatusOK, models.Message{"logged out"})
 }
 
 // AuthMe auth : Auth me
 //
-// @Security ApiKeyAuth
+//	@Security		ApiKeyAuth
 //
 //	@Summary		Auth me
 //	@Description	Auth me
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{object}	models.ResponseUser
-//	@Failure		500		{object}	models.ErrorModel
+//	@Success		200	{object}	models.ResponseUser
+//	@Failure		500	{object}	models.ErrorModel
 //	@Router			/auth/auth-me [get]
 func (ac *AuthController) AuthMe(c *gin.Context) {
 
@@ -119,7 +118,7 @@ func (ac *AuthController) AuthMe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user))})
+	c.JSON(http.StatusOK, utils.DatabaseResponseUserToResponseUser(models.ResponseUser(user)))
 }
 
 // RefreshToken Refresh : Refresh token.
@@ -147,5 +146,5 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": newToken})
+	c.JSON(http.StatusOK, newToken)
 }

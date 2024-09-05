@@ -6,25 +6,23 @@ import (
 	"log"
 )
 
-//	@title			GRUD API
+//	@title			Go Example REST API
 //	@version		1.0v
-//	@description	A Tag service API in golang using gin
+//	@description	Example Golang REST API
+//	@contact.name	Raj Ilyas
+//	@contact.url	https://github.com/RajabovIlyas
+//	@contact.email	rajabowilyas@gmail.com
 
-//	@securityDefinitions.apikey ApiKeyAuth
-//	@in header
-//@name Authorization
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name 						Authorization
 
-// @host		localhost:3000
-// @basePath	/api/v1
+//	@host		localhost:3000
+//	@basePath	/api/v1
+
 func main() {
 
-	a, err := app.New()
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	err = a.Run()
+	err := app.Run()
 
 	if err != nil {
 		log.Fatal(err.Error())

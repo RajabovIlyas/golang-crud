@@ -3,34 +3,33 @@ package authService
 import (
 	"context"
 	"errors"
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	tokensService "github.com/RajabovIlyas/golang-crud/internal/app/services/tokens-service"
 	usersService "github.com/RajabovIlyas/golang-crud/internal/app/services/users-service"
-	"github.com/RajabovIlyas/golang-crud/internal/app/utils"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
+	utils2 "github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/google/uuid"
 )
 
 type AuthService struct {
 	ts *tokensService.TokensService
 	us *usersService.UsersService
-	c  *common.Config
+	c  *config.Config
 }
 
-func NewAuthService(db *database.Queries) *AuthService {
-	c, _ := common.GetConfig(".")
-	return &AuthService{tokensService.NewTokensService(db), usersService.NewUsersService(db), &c}
+func NewAuthService(p *models.DBConfigParam) *AuthService {
+	return &AuthService{tokensService.NewTokensService(p), usersService.NewUsersService(p), p.C}
 }
 
 func (as *AuthService) GenerateTokenByToken(token models.GenerateTokenModel) (models.ResponseToken, error) {
-	at, err := utils.GenerateToken[uuid.UUID](token.AccessTokenKey, as.c.TokenSecret, &as.c.TokenExpiresIn)
+	at, err := utils2.GenerateToken[uuid.UUID](token.AccessTokenKey, as.c.Server.JwtSecretKey, &as.c.Server.TokenExpiresIn)
 
 	if err != nil {
 		return models.ResponseToken{}, err
 	}
 
-	rt, err := utils.GenerateToken[uuid.UUID](token.ID, as.c.TokenSecret, &as.c.TokenRefreshExpiresIn)
+	rt, err := utils2.GenerateToken[uuid.UUID](token.ID, as.c.Server.JwtSecretKey, &as.c.Server.TokenRefreshExpiresIn)
 
 	if err != nil {
 		return models.ResponseToken{}, err
@@ -55,7 +54,7 @@ func (as *AuthService) Login(c context.Context, userLogin models.UserLogin) (mod
 		return models.ResponseToken{}, err
 	}
 
-	err = utils.VerifyPassword(user.Password, userLogin.Password)
+	err = utils2.VerifyPassword(user.Password, userLogin.Password)
 	if err != nil {
 		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
@@ -77,7 +76,7 @@ func (as *AuthService) Register(c context.Context, newUser models.CreateUser) (m
 }
 
 func (as *AuthService) Refresh(c context.Context, refreshToken string) (models.ResponseToken, error) {
-	tokenID, err := utils.ValidateToken[string](refreshToken, as.c.TokenSecret)
+	tokenID, err := utils2.ValidateToken[string](refreshToken, as.c.Server.JwtSecretKey)
 
 	token, err := as.ts.UpdateToken(c, tokenID)
 	if err != nil {

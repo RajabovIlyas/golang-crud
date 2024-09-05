@@ -3,20 +3,20 @@ package filesService
 import (
 	"context"
 	"errors"
-	"github.com/RajabovIlyas/golang-crud/internal/app/common"
+	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"os"
 )
 
 type FilesService struct {
 	db *database.Queries
-	c  *common.Config
+	c  *config.Config
 }
 
-func NewFilesService(db *database.Queries) *FilesService {
-	c, _ := common.GetConfig(".")
-	return &FilesService{db, &c}
+func NewFilesService(p *models.DBConfigParam) *FilesService {
+	return &FilesService{p.DB, p.C}
 }
 
 func (fs *FilesService) UploadFile(c context.Context, file database.CreateFileParams) (string, error) {
@@ -25,7 +25,7 @@ func (fs *FilesService) UploadFile(c context.Context, file database.CreateFilePa
 	if err != nil {
 		return "", err
 	}
-	return fs.c.BaseUrl + constants.ENDPOINT_V1 + "/files/" + result.FileName, nil
+	return fs.c.Server.BaseUrl + constants.ENDPOINT_V1 + "/files/" + result.FileName, nil
 }
 
 func (fs *FilesService) FindFile(c context.Context, fileName string) (database.FindFileByFileNameRow, error) {
