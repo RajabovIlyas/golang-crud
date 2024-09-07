@@ -3,10 +3,7 @@ package app
 import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
-	"github.com/RajabovIlyas/golang-crud/internal/app/cron"
-	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
-	"github.com/RajabovIlyas/golang-crud/internal/app/models"
-	"github.com/RajabovIlyas/golang-crud/internal/app/routes"
+	"github.com/RajabovIlyas/golang-crud/internal/app/server"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/postgres"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/redis"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/logger"
@@ -24,37 +21,31 @@ func Run() error {
 		return err
 	}
 
-	c, _ := config.ParseConfig(loadConfig)
+	cfg, _ := config.ParseConfig(loadConfig)
 
-	db, cdb, err := postgres.NewPsqlDB(c)
+	db, cdb, err := postgres.NewPsqlDB(cfg)
 
 	if err != nil {
 		log.Fatal().Msg("db connection error:" + err.Error())
 		return err
 	}
 
-	p := &models.DBConfigParam{db, c}
-
-	rc := redis.NewRedisClient(c)
+	redisClient := redis.NewRedisClient(cfg)
 
 	logger.Logger()
 
 	g := gin.Default()
 
-	g.Use(middleware.Logger)
-
-	cs := cron.NewCronService(p)
-
-	cs.DeleteAllToken()
-
-	r := routes.New(g, rc, p)
-
-	r.PaveRoutes()
+	s := server.NewServer(g, cfg, db, redisClient)
 
 	log.Info().Msg("Server started")
 
 	defer postgres.DisconnectPsqlDB(cdb)
-	defer redis.DisconnectRedis(rc)
+	defer redis.DisconnectRedis(redisClient)
 
-	return g.Run(c.Server.Port)
+	if err = s.Run(); err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	return err
 }

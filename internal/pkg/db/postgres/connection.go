@@ -8,14 +8,14 @@ import (
 	"log"
 )
 
-func NewPsqlDB(c *config.Config) (*database.Queries, *sql.DB, error) {
+func NewPsqlDB(cfg *config.Config) (*database.Queries, *sql.DB, error) {
 
 	dataSourceName := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
-		c.Postgres.PostgresqlUser,
-		c.Postgres.PostgresqlPassword,
-		c.Postgres.PostgresqlHost,
-		c.Postgres.PostgresqlPort,
-		c.Postgres.PostgresqlDBName,
+		cfg.Postgres.PostgresqlUser,
+		cfg.Postgres.PostgresqlPassword,
+		cfg.Postgres.PostgresqlHost,
+		cfg.Postgres.PostgresqlPort,
+		cfg.Postgres.PostgresqlDBName,
 	)
 
 	fmt.Println("data", dataSourceName)

@@ -7,22 +7,22 @@ import (
 	"time"
 )
 
-func Logger(c *gin.Context) {
+func Logger(g *gin.Context) {
 	t := time.Now()
-	c.Next()
+	g.Next()
 
-	if c.Writer.Status() >= http.StatusBadRequest {
+	if g.Writer.Status() >= http.StatusBadRequest {
 		log.Error().Fields(map[string]interface{}{
-			"method": c.Request.Method,
-			"uri":    c.Request.URL.Path,
-			"error":  c.Errors.ByType(gin.ErrorTypePrivate).String(),
+			"method": g.Request.Method,
+			"uri":    g.Request.URL.Path,
+			"error":  g.Errors.ByType(gin.ErrorTypePrivate).String(),
 		}).Msg("Response")
 		return
 	}
 	log.Info().Fields(map[string]interface{}{
-		"status":  c.Writer.Status(),
+		"status":  g.Writer.Status(),
 		"latency": time.Since(t).String(),
-		"method":  c.Request.Method,
-		"uri":     c.Request.URL.Path,
+		"method":  g.Request.Method,
+		"uri":     g.Request.URL.Path,
 	}).Msg("Request")
 }
