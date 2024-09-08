@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/database"
-	"log"
+	"github.com/rs/zerolog"
 )
 
 func NewPsqlDB(cfg *config.Config) (*database.Queries, *sql.DB, error) {
@@ -32,9 +32,9 @@ func NewPsqlDB(cfg *config.Config) (*database.Queries, *sql.DB, error) {
 
 }
 
-func DisconnectPsqlDB(conn *sql.DB) {
+func DisconnectPsqlDB(conn *sql.DB, logger zerolog.Logger) {
 	err := conn.Close()
 	if err != nil {
-		log.Fatal("Error to disconnect postgres: " + err.Error())
+		logger.Fatal().Msg("Error to disconnect postgres: " + err.Error())
 	}
 }

@@ -3,7 +3,7 @@ package redis
 import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/redis/go-redis/v9"
-	"log"
+	"github.com/rs/zerolog"
 	"time"
 )
 
@@ -25,9 +25,9 @@ func NewRedisClient(cfg *config.Config) *redis.Client {
 	return client
 }
 
-func DisconnectRedis(client *redis.Client) {
+func DisconnectRedis(client *redis.Client, logger zerolog.Logger) {
 	err := client.Close()
 	if err != nil {
-		log.Fatal("Error to disconnect Redis: " + err.Error())
+		logger.Fatal().Msg("Error to disconnect Redis: " + err.Error())
 	}
 }

@@ -6,45 +6,42 @@ import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/server"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/postgres"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/db/redis"
-	"github.com/RajabovIlyas/golang-crud/internal/pkg/logger"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
-func Run() error {
+func Run(logger zerolog.Logger) error {
 
 	loadConfig, err := config.LoadConfig(constants.CONFIG_FILE_PATH)
 
 	if err != nil {
-		log.Fatal().Msg("load config error:" + err.Error())
+		logger.Fatal().Msg("load config error:" + err.Error())
 		return err
 	}
 
-	cfg, _ := config.ParseConfig(loadConfig)
+	cfg, _ := config.ParseConfig(loadConfig, logger)
 
 	db, cdb, err := postgres.NewPsqlDB(cfg)
 
 	if err != nil {
-		log.Fatal().Msg("db connection error:" + err.Error())
+		logger.Fatal().Msg("db connection error:" + err.Error())
 		return err
 	}
 
 	redisClient := redis.NewRedisClient(cfg)
 
-	logger.Logger()
-
 	g := gin.Default()
 
-	s := server.NewServer(g, cfg, db, redisClient)
+	s := server.NewServer(g, cfg, db, redisClient, logger)
 
-	log.Info().Msg("Server started")
+	logger.Info().Msg("Server started")
 
-	defer postgres.DisconnectPsqlDB(cdb)
-	defer redis.DisconnectRedis(redisClient)
+	defer postgres.DisconnectPsqlDB(cdb, logger)
+	defer redis.DisconnectRedis(redisClient, logger)
 
 	if err = s.Run(); err != nil {
-		log.Fatal().Msg(err.Error())
+		logger.Fatal().Msg(err.Error())
 	}
 
 	return err

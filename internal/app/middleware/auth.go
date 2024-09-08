@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (m *middlewareManager) AuthSessionMiddleware() gin.HandlerFunc {
+func (m *MiddlewareManager) AuthSessionMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var userToken string
 		authorizationHeader := ctx.Request.Header.Get("Authorization")

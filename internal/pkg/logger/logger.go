@@ -1,12 +1,19 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
-	"github.com/labstack/gommon/log"
 	"github.com/rs/zerolog"
-	logger "github.com/rs/zerolog/log"
 	"os"
 	"time"
+)
+
+const (
+	LOG_FOLDER    = "logs"
+	ERRORS_FOLDER = "logs/errors"
+	INFO_FOLDER   = "logs/info"
+	ERROR         = "error"
+	INFO          = "info"
 )
 
 type FilteredWriter struct {
@@ -24,37 +31,41 @@ func (w *FilteredWriter) WriteLevel(level zerolog.Level, p []byte) (n int, err e
 	return len(p), nil
 }
 
-func Logger() {
-	_ = os.Mkdir("log", 0777)
+func getLogFileName(path string, logType string, time string) string {
+	return fmt.Sprintf("%s/%s-%v.log", path, logType, time)
+}
 
-	_ = os.Mkdir("log/error", 0777)
+func InitLogger() (zerolog.Logger, error) {
+	_ = os.Mkdir(LOG_FOLDER, 0777)
 
-	_ = os.Mkdir("log/info", 0777)
+	_ = os.Mkdir(ERRORS_FOLDER, 0777)
+
+	_ = os.Mkdir(INFO_FOLDER, 0777)
 
 	infoFile, err := os.OpenFile(
-		"log/info/info-"+time.Now().Format(constants.FormatDate)+".log",
+		getLogFileName(INFO_FOLDER, INFO, time.Now().Format(constants.FormatDate)),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
 		0666,
 	)
 	if err != nil {
-		logger.Warn().Msg(err.Error())
+		return zerolog.Logger{}, err
 	}
 
 	errorFile, err := os.OpenFile(
-		"log/error/error-"+time.Now().Format(constants.FormatDate)+".log",
+		getLogFileName(ERRORS_FOLDER, ERROR, time.Now().Format(constants.FormatDate)),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
 		0666,
 	)
 	if err != nil {
-		log.Warn(err.Error())
+		return zerolog.Logger{}, err
 	}
 
 	errWriter := zerolog.MultiLevelWriter(errorFile)
 	filteredWriter := &FilteredWriter{errWriter, zerolog.WarnLevel}
 	w := zerolog.MultiLevelWriter(infoFile, zerolog.ConsoleWriter{Out: os.Stdout}, filteredWriter)
-	logger.Logger = zerolog.New(w).
+	logger := zerolog.New(w).
 		With().
 		Timestamp().
 		Logger()
-
+	return logger, nil
 }

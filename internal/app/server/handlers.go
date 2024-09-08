@@ -29,18 +29,20 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	fRepo := fileRepository.NewFileRepository(s.db)
 
 	// Init useCases
-	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo)
-	tokenUC := tokenUseCase.NewTokenUseCase(s.cfg, tRepo)
-	authUC := authUseCase.NewAuthUseCase(s.cfg, userUC, tokenUC)
-	fileUC := fileUseCase.NewFileUseCase(s.cfg, fRepo)
-	cronUC := cronUseCase.NewCronUC(tokenUC)
+	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, s.logger)
+	tokenUC := tokenUseCase.NewTokenUseCase(s.cfg, tRepo, s.logger)
+	authUC := authUseCase.NewAuthUseCase(s.cfg, userUC, tokenUC, s.logger)
+	fileUC := fileUseCase.NewFileUseCase(s.cfg, fRepo, s.logger)
+	cronUC := cronUseCase.NewCronUC(tokenUC, s.logger)
 
 	// Init handlers
 	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC)
 	userHandlers := userHttp.NewUserHandlers(s.cfg, userUC)
 	fileHandlers := fileHttp.NewFileHandlers(s.cfg, fileUC)
 
-	mw := middleware.NewMiddlewareManager(s.cfg, userUC, tokenUC)
+	mw := middleware.NewMiddlewareManager(s.cfg, userUC, tokenUC, s.logger)
+
+	g.Use(mw.Logger)
 
 	v1 := g.Group(constants.ENDPOINT_V1)
 

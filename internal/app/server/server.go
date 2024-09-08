@@ -6,7 +6,7 @@ import (
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	maxHeaderBytes = 1 << 20
-	ctxTimeout     = 5
+	ctxTimeout = 5
 )
 
 type Server struct {
@@ -24,10 +23,11 @@ type Server struct {
 	cfg         *config.Config
 	db          *database.Queries
 	redisClient *redis.Client
+	logger      zerolog.Logger
 }
 
-func NewServer(gin *gin.Engine, cfg *config.Config, db *database.Queries, redisClient *redis.Client) *Server {
-	return &Server{gin: gin, cfg: cfg, db: db, redisClient: redisClient}
+func NewServer(gin *gin.Engine, cfg *config.Config, db *database.Queries, redisClient *redis.Client, logger zerolog.Logger) *Server {
+	return &Server{gin: gin, cfg: cfg, db: db, redisClient: redisClient, logger: logger}
 }
 
 func (s *Server) Run() error {
@@ -38,9 +38,9 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
-		log.Printf("Server is listening on PORT: %s", s.cfg.Server.Port)
+		s.logger.Info().Msgf("Server is listening on PORT: %s", s.cfg.Server.Port)
 		if err := s.gin.Run(srv.Addr); err != nil {
-			log.Fatal().Msg("Error starting Server: " + err.Error())
+			s.logger.Fatal().Err(err).Msg("Error starting Server: " + err.Error())
 		}
 	}()
 
@@ -57,9 +57,9 @@ func (s *Server) Run() error {
 	defer shutdown()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal().Msg("Server Shutdown:" + err.Error())
+		s.logger.Fatal().Msg("Server Shutdown:" + err.Error())
 	}
 
-	log.Info().Msg("Server Exited Properly")
+	s.logger.Info().Msg("Server Exited Properly")
 	return nil
 }

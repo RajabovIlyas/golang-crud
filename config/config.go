@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 	"time"
 )
@@ -60,12 +60,12 @@ func LoadConfig(filename string) (*viper.Viper, error) {
 	return v, nil
 }
 
-func ParseConfig(v *viper.Viper) (*Config, error) {
+func ParseConfig(v *viper.Viper, logger zerolog.Logger) (*Config, error) {
 	var c Config
 
 	err := v.Unmarshal(&c)
 	if err != nil {
-		log.Printf("unable to decode into struct, %v", err)
+		logger.Error().Err(err).Msgf("unable to decode into struct")
 		return nil, err
 	}
 
