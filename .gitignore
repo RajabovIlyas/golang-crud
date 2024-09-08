@@ -1,6 +1,9 @@
 .idea
 .vscode
 http
+logs
+
+uploads
 
 
 *.http
