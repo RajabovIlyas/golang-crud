@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"github.com/RajabovIlyas/golang-crud/internal/app/constants"
 	"github.com/rs/zerolog"
 	"os"
 	"time"
@@ -14,6 +13,7 @@ const (
 	INFO_FOLDER   = "logs/info"
 	ERROR         = "error"
 	INFO          = "info"
+	FORMAT_DATE   = "2006-01-02"
 )
 
 type FilteredWriter struct {
@@ -43,7 +43,7 @@ func InitLogger() (zerolog.Logger, error) {
 	_ = os.Mkdir(INFO_FOLDER, 0777)
 
 	infoFile, err := os.OpenFile(
-		getLogFileName(INFO_FOLDER, INFO, time.Now().Format(constants.FormatDate)),
+		getLogFileName(INFO_FOLDER, INFO, time.Now().Format(FORMAT_DATE)),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
 		0666,
 	)
@@ -52,7 +52,7 @@ func InitLogger() (zerolog.Logger, error) {
 	}
 
 	errorFile, err := os.OpenFile(
-		getLogFileName(ERRORS_FOLDER, ERROR, time.Now().Format(constants.FormatDate)),
+		getLogFileName(ERRORS_FOLDER, ERROR, time.Now().Format(FORMAT_DATE)),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
 		0666,
 	)

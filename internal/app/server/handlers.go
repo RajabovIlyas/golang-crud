@@ -27,9 +27,10 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	uRepo := userRepository.NewUserRepository(s.db)
 	tRepo := tokenRepository.NewTokenRepository(s.db)
 	fRepo := fileRepository.NewFileRepository(s.db)
+	uRedisRepo := userRepository.NewUserRedisRepo(s.redisClient)
 
 	// Init useCases
-	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, s.logger)
+	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, uRedisRepo, s.logger)
 	tokenUC := tokenUseCase.NewTokenUseCase(s.cfg, tRepo, s.logger)
 	authUC := authUseCase.NewAuthUseCase(s.cfg, userUC, tokenUC, s.logger)
 	fileUC := fileUseCase.NewFileUseCase(s.cfg, fRepo, s.logger)
