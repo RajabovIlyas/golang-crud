@@ -30,31 +30,74 @@ func (q *Queries) CreateToken(ctx context.Context, userID uuid.UUID) (CreateToke
 	return i, err
 }
 
-const deleteOldTokens = `-- name: DeleteOldTokens :exec
+const deleteOldTokens = `-- name: DeleteOldTokens :many
 delete from tokens where updated_at <= NOW() - INTERVAL '2 days'
+returning id, access_token_key, user_id
 `
 
-func (q *Queries) DeleteOldTokens(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteOldTokens)
-	return err
+type DeleteOldTokensRow struct {
+	ID             uuid.UUID
+	AccessTokenKey uuid.UUID
+	UserID         uuid.UUID
 }
 
-const deleteTokenByAccessKey = `-- name: DeleteTokenByAccessKey :exec
+func (q *Queries) DeleteOldTokens(ctx context.Context) ([]DeleteOldTokensRow, error) {
+	rows, err := q.db.QueryContext(ctx, deleteOldTokens)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []DeleteOldTokensRow
+	for rows.Next() {
+		var i DeleteOldTokensRow
+		if err := rows.Scan(&i.ID, &i.AccessTokenKey, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const deleteTokenByAccessKey = `-- name: DeleteTokenByAccessKey :one
 delete from tokens where access_token_key = $1
+returning id, access_token_key, user_id
 `
 
-func (q *Queries) DeleteTokenByAccessKey(ctx context.Context, accessTokenKey uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteTokenByAccessKey, accessTokenKey)
-	return err
+type DeleteTokenByAccessKeyRow struct {
+	ID             uuid.UUID
+	AccessTokenKey uuid.UUID
+	UserID         uuid.UUID
 }
 
-const deleteTokenById = `-- name: DeleteTokenById :exec
+func (q *Queries) DeleteTokenByAccessKey(ctx context.Context, accessTokenKey uuid.UUID) (DeleteTokenByAccessKeyRow, error) {
+	row := q.db.QueryRowContext(ctx, deleteTokenByAccessKey, accessTokenKey)
+	var i DeleteTokenByAccessKeyRow
+	err := row.Scan(&i.ID, &i.AccessTokenKey, &i.UserID)
+	return i, err
+}
+
+const deleteTokenById = `-- name: DeleteTokenById :one
 delete from tokens where id = $1
+returning id, access_token_key, user_id
 `
 
-func (q *Queries) DeleteTokenById(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteTokenById, id)
-	return err
+type DeleteTokenByIdRow struct {
+	ID             uuid.UUID
+	AccessTokenKey uuid.UUID
+	UserID         uuid.UUID
+}
+
+func (q *Queries) DeleteTokenById(ctx context.Context, id uuid.UUID) (DeleteTokenByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, deleteTokenById, id)
+	var i DeleteTokenByIdRow
+	err := row.Scan(&i.ID, &i.AccessTokenKey, &i.UserID)
+	return i, err
 }
 
 const findTokenByAccessKey = `-- name: FindTokenByAccessKey :one

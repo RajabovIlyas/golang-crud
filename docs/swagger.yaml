@@ -29,7 +29,7 @@ definitions:
       refresh_token:
         type: string
     type: object
-  models.ResponseUser:
+  models.UserModel:
     properties:
       id:
         type: string
@@ -61,7 +61,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:
@@ -181,7 +181,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:
@@ -206,7 +206,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:
@@ -255,7 +255,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:
@@ -285,7 +285,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:
@@ -310,7 +310,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ResponseUser'
+            $ref: '#/definitions/models.UserModel'
         "500":
           description: Internal Server Error
           schema:

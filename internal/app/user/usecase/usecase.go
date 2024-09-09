@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/user"
@@ -19,11 +18,6 @@ type userUC struct {
 	logger    zerolog.Logger
 }
 
-const (
-	basePrefix    = "api-user:"
-	cacheDuration = 3600
-)
-
 func NewUserUseCase(cfg *config.Config, userRepo user.Repository, redisRepo user.RedisRepository, logger zerolog.Logger) user.UseCase {
 	return &userUC{cfg: cfg, userRepo: userRepo, redisRepo: redisRepo, logger: logger}
 }
@@ -37,11 +31,11 @@ func (u userUC) Find(ctx context.Context) ([]database.FindUsersRow, error) {
 	return foundUsers, nil
 }
 
-func (u userUC) FindById(ctx context.Context, userIDStr string) (models.ResponseUser, error) {
+func (u userUC) FindById(ctx context.Context, userIDStr string) (models.UserModel, error) {
 
-	cachedUser, err := u.redisRepo.GetByIDCtx(ctx, u.GenerateUserKey(userIDStr))
+	cachedUser, err := u.redisRepo.GetByIDCtx(ctx, userIDStr)
 	if err != nil {
-		u.logger.Error().Err(err).Msgf("authUC.FindById.GetByIDCtx: %v", err)
+		u.logger.Warn().Err(err).Msgf("authUC.FindById.GetByIDCtx: %v", err)
 	}
 	if cachedUser != nil {
 		return *cachedUser, nil
@@ -50,38 +44,38 @@ func (u userUC) FindById(ctx context.Context, userIDStr string) (models.Response
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.FindById: invalid userID = %s", userIDStr)
-		return models.ResponseUser{}, err
+		return models.UserModel{}, err
 	}
 	foundUser, err := u.userRepo.FindByID(ctx, userID)
 
 	if err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.FindById: find by id = %v", userID)
-		return models.ResponseUser{}, err
+		return models.UserModel{}, err
 	}
 
-	responseUser := models.ResponseUser(foundUser)
+	UserModel := models.UserModel(foundUser)
 
-	if err = u.redisRepo.SetUserCtx(ctx, u.GenerateUserKey(userID.String()), cacheDuration, &responseUser); err != nil {
+	if err = u.redisRepo.SetUserCtx(ctx, userID.String(), &UserModel); err != nil {
 		u.logger.Error().Err(err).Msgf("authUC.FindById.SetUserCtx: %v", err)
 	}
 
-	return responseUser, nil
+	return UserModel, nil
 }
 
-func (u userUC) Create(ctx context.Context, createUser models.CreateUser) (models.ResponseUser, error) {
+func (u userUC) Create(ctx context.Context, createUser models.CreateUser) (models.UserModel, error) {
 	createdUser, err := u.userRepo.Create(ctx, database.CreateUserParams{Username: createUser.Username, Password: createUser.Password})
 	if err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.Create: error create user")
-		return models.ResponseUser{}, err
+		return models.UserModel{}, err
 	}
-	return models.ResponseUser(createdUser), nil
+	return models.UserModel(createdUser), nil
 }
 
-func (u userUC) Update(ctx context.Context, userIDStr string, updateUser models.UpdateUser) (models.ResponseUser, error) {
+func (u userUC) Update(ctx context.Context, userIDStr string, updateUser models.UpdateUser) (models.UserModel, error) {
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.Update: invalid userID = %s", userIDStr)
-		return models.ResponseUser{}, err
+		return models.UserModel{}, err
 	}
 	updatedUser, err := u.userRepo.UpdateByID(ctx, database.UpdateUserByIdParams{
 		ID:       userID,
@@ -89,14 +83,14 @@ func (u userUC) Update(ctx context.Context, userIDStr string, updateUser models.
 	})
 	if err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.Update: error update user by id = %v", userID)
-		return models.ResponseUser{}, err
+		return models.UserModel{}, err
 	}
 
-	if err = u.redisRepo.DeleteUserCtx(ctx, u.GenerateUserKey(updatedUser.ID.String())); err != nil {
+	if err = u.redisRepo.DeleteUserCtx(ctx, updatedUser.ID.String()); err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.Update.DeleteUserCtx: %s", err)
 	}
 
-	return models.ResponseUser(updatedUser), nil
+	return models.UserModel(updatedUser), nil
 }
 
 func (u userUC) Delete(ctx context.Context, userIDStr string) error {
@@ -111,7 +105,7 @@ func (u userUC) Delete(ctx context.Context, userIDStr string) error {
 		return err
 	}
 
-	if err = u.redisRepo.DeleteUserCtx(ctx, u.GenerateUserKey(userIDStr)); err != nil {
+	if err = u.redisRepo.DeleteUserCtx(ctx, userIDStr); err != nil {
 		u.logger.Error().Err(err).Msgf("userUC.Delete.DeleteUserCtx: %s", err)
 	}
 
@@ -145,8 +139,4 @@ func (u userUC) UpdatePasswordById(ctx context.Context, updateUser models.Update
 	}
 
 	return updatedUser, nil
-}
-
-func (u *userUC) GenerateUserKey(userID string) string {
-	return fmt.Sprintf("%s: %s", basePrefix, userID)
 }

@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+const (
+	basePrefix    = "api-user:"
+	cacheDuration = 3600
+)
+
 type userRedisRepo struct {
 	redisClient *redis.Client
 }
@@ -18,35 +23,39 @@ func NewUserRedisRepo(redisClient *redis.Client) user.RedisRepository {
 	return &userRedisRepo{redisClient: redisClient}
 }
 
-func (a *userRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.ResponseUser, error) {
+func (u *userRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.UserModel, error) {
 
-	userBytes, err := a.redisClient.Get(ctx, key).Bytes()
+	userBytes, err := u.redisClient.Get(ctx, u.generateUserKey(key)).Bytes()
 	if err != nil {
 		return nil, errors.Wrap(err, "userRedisRepo.GetByIDCtx.redisClient.Get")
 	}
-	responseUser := &models.ResponseUser{}
-	if err = json.Unmarshal(userBytes, responseUser); err != nil {
+	userModel := &models.UserModel{}
+	if err = json.Unmarshal(userBytes, userModel); err != nil {
 		return nil, errors.Wrap(err, "userRedisRepo.GetByIDCtx.json.Unmarshal")
 	}
-	return responseUser, nil
+	return userModel, nil
 }
 
-func (a *userRedisRepo) SetUserCtx(ctx context.Context, key string, seconds int, user *models.ResponseUser) error {
+func (u *userRedisRepo) SetUserCtx(ctx context.Context, key string, user *models.UserModel) error {
 
 	userBytes, err := json.Marshal(user)
 	if err != nil {
 		return errors.Wrap(err, "userRedisRepo.SetUserCtx.json.Unmarshal")
 	}
-	if err = a.redisClient.Set(ctx, key, userBytes, time.Second*time.Duration(seconds)).Err(); err != nil {
+	if err = u.redisClient.Set(ctx, u.generateUserKey(key), userBytes, time.Second*time.Duration(cacheDuration)).Err(); err != nil {
 		return errors.Wrap(err, "userRedisRepo.SetUserCtx.redisClient.Set")
 	}
 	return nil
 }
 
-func (a *userRedisRepo) DeleteUserCtx(ctx context.Context, key string) error {
+func (u *userRedisRepo) DeleteUserCtx(ctx context.Context, key string) error {
 
-	if err := a.redisClient.Del(ctx, key).Err(); err != nil {
+	if err := u.redisClient.Del(ctx, u.generateUserKey(key)).Err(); err != nil {
 		return errors.Wrap(err, "userRedisRepo.DeleteUserCtx.redisClient.Del")
 	}
 	return nil
+}
+
+func (u *userRedisRepo) generateUserKey(key string) string {
+	return basePrefix + key
 }

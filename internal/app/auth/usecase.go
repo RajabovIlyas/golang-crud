@@ -10,5 +10,5 @@ type UseCase interface {
 	Logout(context.Context, string) error
 	Register(context.Context, models.CreateUser) (models.ResponseToken, error)
 	Refresh(context.Context, string) (models.ResponseToken, error)
-	AuthMe(context.Context, string) (models.ResponseUser, error)
+	AuthMe(context.Context, string) (models.UserModel, error)
 }

@@ -11,7 +11,7 @@ type Repository interface {
 	FindByAccessKey(context.Context, uuid.UUID) (database.FindTokenByAccessKeyRow, error)
 	Create(context.Context, uuid.UUID) (database.CreateTokenRow, error)
 	UpdateByID(context.Context, uuid.UUID) (database.UpdateTokenByIdRow, error)
-	DeleteByID(context.Context, uuid.UUID) error
-	DeleteByAccessKey(context.Context, uuid.UUID) error
-	DeleteOldTokens(context.Context) error
+	DeleteByID(context.Context, uuid.UUID) (database.DeleteTokenByIdRow, error)
+	DeleteByAccessKey(context.Context, uuid.UUID) (database.DeleteTokenByAccessKeyRow, error)
+	DeleteOldTokens(context.Context) ([]database.DeleteOldTokensRow, error)
 }

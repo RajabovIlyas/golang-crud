@@ -24,7 +24,7 @@ type UserLogin struct {
 	Password string `json:"password"`
 }
 
-type ResponseUser struct {
+type UserModel struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
 }

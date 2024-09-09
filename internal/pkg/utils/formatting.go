@@ -5,17 +5,17 @@ import (
 	"github.com/RajabovIlyas/golang-crud/internal/database"
 )
 
-func DatabaseResponseUserToResponseUser(dbUser models.ResponseUser) models.ResponseUser {
-	return models.ResponseUser{
+func DatabaseUserModelToUserModel(dbUser models.UserModel) models.UserModel {
+	return models.UserModel{
 		ID:       dbUser.ID,
 		Username: dbUser.Username,
 	}
 }
 
-func DatabaseResponseUsersToResponseUsers(dbUsers []database.FindUsersRow) []models.ResponseUser {
-	users := make([]models.ResponseUser, len(dbUsers))
+func DatabaseUserModelsToUserModels(dbUsers []database.FindUsersRow) []models.UserModel {
+	users := make([]models.UserModel, len(dbUsers))
 	for i, u := range dbUsers {
-		users[i] = DatabaseResponseUserToResponseUser(models.ResponseUser(u))
+		users[i] = DatabaseUserModelToUserModel(models.UserModel(u))
 	}
 	return users
 }

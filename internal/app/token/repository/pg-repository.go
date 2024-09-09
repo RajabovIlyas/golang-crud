@@ -31,14 +31,14 @@ func (t tokenRepo) UpdateByID(ctx context.Context, tokenID uuid.UUID) (database.
 	return t.db.UpdateTokenById(ctx, tokenID)
 }
 
-func (t tokenRepo) DeleteByID(ctx context.Context, tokenID uuid.UUID) error {
+func (t tokenRepo) DeleteByID(ctx context.Context, tokenID uuid.UUID) (database.DeleteTokenByIdRow, error) {
 	return t.db.DeleteTokenById(ctx, tokenID)
 }
 
-func (t tokenRepo) DeleteByAccessKey(ctx context.Context, accessKey uuid.UUID) error {
+func (t tokenRepo) DeleteByAccessKey(ctx context.Context, accessKey uuid.UUID) (database.DeleteTokenByAccessKeyRow, error) {
 	return t.db.DeleteTokenByAccessKey(ctx, accessKey)
 }
 
-func (t tokenRepo) DeleteOldTokens(ctx context.Context) error {
+func (t tokenRepo) DeleteOldTokens(ctx context.Context) ([]database.DeleteOldTokensRow, error) {
 	return t.db.DeleteOldTokens(ctx)
 }

@@ -14,11 +14,12 @@ import (
 type tokenUS struct {
 	cfg       *config.Config
 	tokenRepo token.Repository
+	redisRepo token.RedisRepository
 	logger    zerolog.Logger
 }
 
-func NewTokenUseCase(cfg *config.Config, tokenRepo token.Repository, logger zerolog.Logger) token.UseCase {
-	return &tokenUS{cfg, tokenRepo, logger}
+func NewTokenUseCase(cfg *config.Config, tokenRepo token.Repository, redisRepo token.RedisRepository, logger zerolog.Logger) token.UseCase {
+	return &tokenUS{cfg, tokenRepo, redisRepo, logger}
 }
 
 func (t tokenUS) GenerateToken(ctx context.Context, userID uuid.UUID) (models.ResponseToken, error) {
@@ -55,27 +56,50 @@ func (t tokenUS) GenerateTokenByToken(generateToken models.GenerateTokenModel) (
 	return models.ResponseToken{AccessToken: at, RefreshToken: rt}, nil
 }
 
-func (t tokenUS) FindTokenById(ctx context.Context, tokenIDStr string) (database.FindTokenByIdRow, error) {
+func (t tokenUS) FindTokenById(ctx context.Context, tokenIDStr string) (models.TokenModel, error) {
+	cachedToken, err := t.redisRepo.GetByIDCtx(ctx, tokenIDStr)
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.FindTokenById.GetByIDCtx: %v", err)
+	}
+	if cachedToken != nil {
+		return *cachedToken, nil
+	}
+
 	tokenID, err := uuid.Parse(tokenIDStr)
 	if err != nil {
 		t.logger.Error().Err(err).Msgf("tokenUS.FindTokenById(invalid tokenID): %s", tokenIDStr)
-		return database.FindTokenByIdRow{}, err
+		return models.TokenModel{}, err
 	}
 
 	foundToken, err := t.tokenRepo.FindByID(ctx, tokenID)
 	if err != nil {
 		t.logger.Error().Err(err).Msgf("tokenUS.FindTokenById: find a token by id=%v", tokenID)
-		return database.FindTokenByIdRow{}, err
+		return models.TokenModel{}, err
 	}
 
-	return foundToken, nil
+	tokenModel := models.TokenModel(foundToken)
+
+	err = t.redisRepo.SetTokenCtx(ctx, foundToken.ID.String(), &tokenModel)
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.FindTokenById.SetTokenCtx: %v", err)
+	}
+
+	return tokenModel, nil
 }
 
-func (t tokenUS) FindTokenByAccessKey(ctx context.Context, accessKeyStr string) (database.FindTokenByAccessKeyRow, error) {
+func (t tokenUS) FindTokenByAccessKey(ctx context.Context, accessKeyStr string) (models.TokenModel, error) {
+	cachedToken, err := t.redisRepo.GetByIDCtx(ctx, accessKeyStr)
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.FindTokenByAccessKey.GetByIDCtx: %v", err)
+	}
+	if cachedToken != nil {
+		return *cachedToken, nil
+	}
+
 	accessKey, err := uuid.Parse(accessKeyStr)
 	if err != nil {
 		t.logger.Error().Err(err).Msgf("tokenUS.FindTokenByAccessKey(invalid accessKey): %s", accessKeyStr)
-		return database.FindTokenByAccessKeyRow{}, err
+		return models.TokenModel{}, err
 	}
 
 	foundToken, err := t.tokenRepo.FindByAccessKey(ctx, accessKey)
@@ -83,7 +107,14 @@ func (t tokenUS) FindTokenByAccessKey(ctx context.Context, accessKeyStr string) 
 		t.logger.Error().Err(err).Msgf("tokenUS.FindTokenByAccessKey: find token by accessKey = %v", accessKey)
 	}
 
-	return foundToken, nil
+	tokenModel := models.TokenModel(foundToken)
+
+	err = t.redisRepo.SetTokenCtx(ctx, foundToken.AccessTokenKey.String(), &tokenModel)
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.FindTokenByAccessKey.SetTokenCtx: %v", err)
+	}
+
+	return tokenModel, nil
 }
 
 func (t tokenUS) CreateToken(ctx context.Context, userID uuid.UUID) (database.CreateTokenRow, error) {
@@ -103,34 +134,57 @@ func (t tokenUS) UpdateToken(ctx context.Context, tokenID uuid.UUID) (database.U
 		return database.UpdateTokenByIdRow{}, err
 	}
 
+	t.DeleteTokenFromRedis(ctx, models.TokenModel(updatedToken))
+
 	return updatedToken, nil
 }
 
 func (t tokenUS) DeleteTokenById(ctx context.Context, tokenID uuid.UUID) error {
-	err := t.tokenRepo.DeleteByID(ctx, tokenID)
+	deletedToken, err := t.tokenRepo.DeleteByID(ctx, tokenID)
 	if err != nil {
 		t.logger.Error().Err(err).Msgf("tokenUS.DeleteTokenById: delete token by tokenID = %v", tokenID)
 		return err
 	}
 
+	t.DeleteTokenFromRedis(ctx, models.TokenModel(deletedToken))
+
 	return nil
 }
 
 func (t tokenUS) DeleteTokenByAccessKey(ctx context.Context, accessKey uuid.UUID) error {
-	err := t.tokenRepo.DeleteByAccessKey(ctx, accessKey)
+	deletedToken, err := t.tokenRepo.DeleteByAccessKey(ctx, accessKey)
 	if err != nil {
 		t.logger.Error().Err(err).Msgf("tokenUS.DeleteTokenByAccessKey: delete token by accessKey = %v", accessKey)
 		return err
 	}
 
+	t.DeleteTokenFromRedis(ctx, models.TokenModel(deletedToken))
+
 	return nil
 }
 
 func (t tokenUS) DeleteOldTokens(ctx context.Context) error {
-	err := t.tokenRepo.DeleteOldTokens(ctx)
+	deletedTokens, err := t.tokenRepo.DeleteOldTokens(ctx)
 	if err != nil {
 		t.logger.Error().Err(err).Msg("tokenUS.DeleteOldTokens: delete Old tokens")
 		return err
 	}
+
+	for _, deletedToken := range deletedTokens {
+		t.DeleteTokenFromRedis(ctx, models.TokenModel(deletedToken))
+	}
+
 	return err
+}
+
+func (t *tokenUS) DeleteTokenFromRedis(ctx context.Context, token models.TokenModel) {
+	err := t.redisRepo.DeleteTokenCtx(ctx, token.ID.String())
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.DeleteTokenFromRedis.DeleteTokenCtx(ID): %s", err)
+	}
+	err = nil
+	err = t.redisRepo.DeleteTokenCtx(ctx, token.AccessTokenKey.String())
+	if err != nil {
+		t.logger.Warn().Err(err).Msgf("tokenUC.DeleteTokenFromRedis.DeleteTokenCtx(AccessTokenKey): %s", err)
+	}
 }
