@@ -1,6 +1,6 @@
 .idea
 .vscode
-http
+./http
 logs
 
 uploads
