@@ -25,10 +25,10 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 
 	//Init Repository
 	uRepo := userRepository.NewUserRepository(s.db)
-	tRepo := tokenRepository.NewTokenRepository(s.db)
-	fRepo := fileRepository.NewFileRepository(s.db)
 	uRedisRepo := userRepository.NewUserRedisRepo(s.redisClient)
+	tRepo := tokenRepository.NewTokenRepository(s.db)
 	tRedisRepo := tokenRepository.NewTokenRedisRepo(s.redisClient)
+	fRepo := fileRepository.NewFileRepository(s.db)
 
 	// Init useCases
 	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, uRedisRepo, s.logger)
@@ -38,8 +38,8 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	cronUC := cronUseCase.NewCronUC(tokenUC, s.logger)
 
 	// Init handlers
-	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC)
 	userHandlers := userHttp.NewUserHandlers(s.cfg, userUC)
+	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC)
 	fileHandlers := fileHttp.NewFileHandlers(s.cfg, fileUC)
 
 	mw := middleware.NewMiddlewareManager(s.cfg, userUC, tokenUC, s.logger)
@@ -51,12 +51,12 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	health := v1.Group("/health")
-	authGroup := v1.Group("/auth")
 	userGroup := v1.Group("/users")
+	authGroup := v1.Group("/auth")
 	fileGroup := v1.Group("/files")
 
-	authHttp.MapAuthRoutes(authGroup, authHandlers, mw)
 	userHttp.MapUsersRoutes(userGroup, userHandlers)
+	authHttp.MapAuthRoutes(authGroup, authHandlers, mw)
 	fileHttp.MapFileRoutes(fileGroup, fileHandlers)
 
 	health.GET("", func(g *gin.Context) {

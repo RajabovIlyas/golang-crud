@@ -1,11 +1,9 @@
 package http
 
 import (
-	"context"
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/file"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -39,7 +37,7 @@ func (f fileHandlers) UploadFile(g *gin.Context) {
 		return
 	}
 
-	filePath, err := f.fileUC.UploadFile(context.Background(), database.CreateFileParams{
+	filePath, err := f.fileUC.UploadFile(models.CreateFile{
 		Format:   format,
 		Path:     path,
 		FileName: newFile.Filename,
@@ -57,7 +55,7 @@ func (f fileHandlers) UploadFile(g *gin.Context) {
 
 func (f fileHandlers) GetFile(g *gin.Context) {
 	fileName := g.Param("file_name")
-	foundFile, err := f.fileUC.FindFile(context.Background(), fileName)
+	foundFile, err := f.fileUC.FindFile(fileName)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: "file not found"})
@@ -68,7 +66,7 @@ func (f fileHandlers) GetFile(g *gin.Context) {
 
 func (f fileHandlers) DeleteFile(g *gin.Context) {
 	fileName := g.Param("file_name")
-	err := f.fileUC.DeleteFile(context.Background(), fileName)
+	err := f.fileUC.DeleteFile(fileName)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})

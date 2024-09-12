@@ -5,7 +5,6 @@ import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/user"
-	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -26,7 +25,7 @@ func NewUserHandlers(cfg *config.Config, userUC user.UseCase) user.Handlers {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	models.UserModel
+//	@Success		200	{object}	models.Users
 //	@Failure		500	{object}	models.ErrorModel
 //	@Router			/users/ [get]
 func (u userHandlers) GetUsers(g *gin.Context) {
@@ -37,7 +36,7 @@ func (u userHandlers) GetUsers(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, utils.DatabaseUserModelsToUserModels(users))
+	g.JSON(http.StatusOK, users)
 }
 
 // GetUser Get : Return user by id
@@ -48,7 +47,7 @@ func (u userHandlers) GetUsers(g *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"id"
-//	@Success		200	{object}	models.UserModel
+//	@Success		200	{object}	models.Users
 //	@Failure		500	{object}	models.ErrorModel
 //	@Router			/users/{id} [get]
 func (u userHandlers) GetUser(g *gin.Context) {
@@ -61,7 +60,7 @@ func (u userHandlers) GetUser(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, utils.DatabaseUserModelToUserModel(models.UserModel(foundUser)))
+	g.JSON(http.StatusOK, foundUser)
 }
 
 // UpdateUser Update : Update user by id
@@ -73,25 +72,26 @@ func (u userHandlers) GetUser(g *gin.Context) {
 //	@Produce		json
 //	@Param			id		path		string				true	"id"
 //	@Param			user	body		models.UpdateUser	true	"Update user"
-//	@Success		200		{object}	models.UserModel
+//	@Success		200		{object}	models.Users
 //	@Failure		500		{object}	models.ErrorModel
 //	@Router			/users/{id} [put]
 func (u userHandlers) UpdateUser(g *gin.Context) {
 	userID := g.Param("userID")
 
-	var updateUser models.UpdateUser
+	var updateUser models.UpdateUserReq
 	if err := g.BindJSON(&updateUser); err != nil {
-		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
+		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: "Error parsing request body"})
 		return
 	}
+	updateUser.ID = userID
 
-	updatedUser, err := u.userUC.Update(context.Background(), userID, updateUser)
+	updatedUser, err := u.userUC.Update(context.Background(), updateUser)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
 		return
 	}
 
-	g.JSON(http.StatusOK, utils.DatabaseUserModelToUserModel(models.UserModel(updatedUser)))
+	g.JSON(http.StatusOK, updatedUser)
 }
 
 // DeleteUser Delete : Delete user by id
@@ -125,13 +125,13 @@ func (u userHandlers) DeleteUser(g *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"id"
-//	@Success		200	{object}	models.UserModel
+//	@Success		200	{object}	models.Users
 //	@Failure		500	{object}	models.ErrorModel
 //	@Router			/users/password/{id} [delete]
 func (u userHandlers) UpdateUserPassword(g *gin.Context) {
-	var updatePassword models.UpdatePassword
+	var updatePassword models.UpdatePasswordReq
 	if err := g.BindJSON(&updatePassword); err != nil {
-		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
+		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: "error parsing request body"})
 		return
 	}
 
@@ -143,5 +143,5 @@ func (u userHandlers) UpdateUserPassword(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, utils.DatabaseUserModelToUserModel(models.UserModel(updatedUser)))
+	g.JSON(http.StatusOK, updatedUser)
 }

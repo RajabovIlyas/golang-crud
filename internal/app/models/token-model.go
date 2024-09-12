@@ -1,6 +1,9 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type ResponseToken struct {
 	AccessToken  string `json:"access_token"`
@@ -16,8 +19,10 @@ type RefreshTokenModel struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type TokenModel struct {
-	ID             uuid.UUID `json:"id"`
-	AccessTokenKey uuid.UUID `json:"access_token_key"`
-	UserID         uuid.UUID `json:"user_id"`
+type Tokens struct {
+	ID             uuid.UUID `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
+	AccessTokenKey uuid.UUID `json:"access_token_key" gorm:"type:uuid;default:gen_random_uuid()"`
+	UserID         uuid.UUID `json:"user_id" gorm:"not null"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

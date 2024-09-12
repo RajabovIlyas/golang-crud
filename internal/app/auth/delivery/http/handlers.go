@@ -6,7 +6,6 @@ import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/auth"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
-	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -107,7 +106,7 @@ func (a authHandlers) LogoutMe(g *gin.Context) {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	models.UserModel
+//	@Success		200	{object}	models.Users
 //	@Failure		500	{object}	models.ErrorModel
 //	@Router			/auth/auth-me [get]
 func (a authHandlers) AuthMe(g *gin.Context) {
@@ -120,7 +119,7 @@ func (a authHandlers) AuthMe(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, utils.DatabaseUserModelToUserModel(models.UserModel(user)))
+	g.JSON(http.StatusOK, user)
 }
 
 // RefreshToken Refresh : Refresh token.

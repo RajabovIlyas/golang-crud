@@ -1,15 +1,34 @@
 package models
 
 import (
-	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/google/uuid"
+	"time"
 )
 
-type FileModel struct {
-	ID       uuid.UUID        `json:"id"`
-	FileName string           `json:"filename"`
-	Path     string           `json:"path"`
-	Format   database.Formats `json:"format"`
-	Size     int64            `json:"size"`
-	UserID   uuid.NullUUID    `json:"user_id"`
+type Formats string
+
+const (
+	FormatsVideo Formats = "video"
+	FormatsPhoto Formats = "photo"
+	FormatsMusic Formats = "music"
+	FormatsOther Formats = "other"
+)
+
+type CreateFile struct {
+	FileName string        `json:"file_name" gorm:"not null"`
+	Path     string        `json:"path" gorm:"not null"`
+	Format   Formats       `json:"format" gorm:"not null"`
+	Size     int64         `json:"size" gorm:"not null"`
+	UserID   uuid.NullUUID `json:"user_id" `
+}
+
+type Files struct {
+	ID        uuid.UUID     `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
+	FileName  string        `json:"file_name" gorm:"not null"`
+	Path      string        `json:"path" gorm:"not null"`
+	Format    Formats       `json:"format" gorm:"not null"`
+	Size      int64         `json:"size" gorm:"not null"`
+	UserID    uuid.NullUUID `json:"user_id" `
+	CreatedAt time.Time     `json:"created_at" gorm:"not null;default:now()"`
+	UpdatedAt time.Time     `json:"updated_at" gorm:"not null;default:now()"`
 }

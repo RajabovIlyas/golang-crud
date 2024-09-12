@@ -2,10 +2,10 @@ package models
 
 import (
 	"github.com/RajabovIlyas/golang-crud/config"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"gorm.io/gorm"
 )
 
 type DBConfigParam struct {
-	DB *database.Queries
+	DB *gorm.DB
 	C  *config.Config
 }

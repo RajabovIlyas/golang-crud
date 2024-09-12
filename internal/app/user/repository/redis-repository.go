@@ -23,20 +23,20 @@ func NewUserRedisRepo(redisClient *redis.Client) user.RedisRepository {
 	return &userRedisRepo{redisClient: redisClient}
 }
 
-func (u *userRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.UserModel, error) {
+func (u *userRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.Users, error) {
 
 	userBytes, err := u.redisClient.Get(ctx, u.generateUserKey(key)).Bytes()
 	if err != nil {
 		return nil, errors.Wrap(err, "userRedisRepo.GetByIDCtx.redisClient.Get")
 	}
-	userModel := &models.UserModel{}
-	if err = json.Unmarshal(userBytes, userModel); err != nil {
+	Users := &models.Users{}
+	if err = json.Unmarshal(userBytes, Users); err != nil {
 		return nil, errors.Wrap(err, "userRedisRepo.GetByIDCtx.json.Unmarshal")
 	}
-	return userModel, nil
+	return Users, nil
 }
 
-func (u *userRedisRepo) SetUserCtx(ctx context.Context, key string, user *models.UserModel) error {
+func (u *userRedisRepo) SetUserCtx(ctx context.Context, key string, user *models.Users) error {
 
 	userBytes, err := json.Marshal(user)
 	if err != nil {

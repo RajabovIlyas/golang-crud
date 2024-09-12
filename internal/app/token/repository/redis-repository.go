@@ -23,20 +23,20 @@ func NewTokenRedisRepo(redisClient *redis.Client) token.RedisRepository {
 	return &tokenRedisRepo{redisClient: redisClient}
 }
 
-func (t *tokenRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.TokenModel, error) {
+func (t *tokenRedisRepo) GetByIDCtx(ctx context.Context, key string) (*models.Tokens, error) {
 
 	tokenBytes, err := t.redisClient.Get(ctx, t.generateTokenKey(key)).Bytes()
 	if err != nil {
 		return nil, errors.Wrap(err, "tokenRedisRepo.GetByIDCtx.redisClient.Get")
 	}
-	tokenModel := &models.TokenModel{}
-	if err = json.Unmarshal(tokenBytes, tokenModel); err != nil {
+	findToken := &models.Tokens{}
+	if err = json.Unmarshal(tokenBytes, findToken); err != nil {
 		return nil, errors.Wrap(err, "tokenRedisRepo.GetByIDCtx.json.Unmarshal")
 	}
-	return tokenModel, nil
+	return findToken, nil
 }
 
-func (t *tokenRedisRepo) SetTokenCtx(ctx context.Context, key string, token *models.TokenModel) error {
+func (t *tokenRedisRepo) SetTokenCtx(ctx context.Context, key string, token *models.Tokens) error {
 
 	tokenBytes, err := json.Marshal(token)
 	if err != nil {
