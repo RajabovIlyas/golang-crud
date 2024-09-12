@@ -2,9 +2,7 @@ package main
 
 import (
 	_ "github.com/RajabovIlyas/golang-crud/docs"
-	"github.com/RajabovIlyas/golang-crud/internal/pkg/app"
-	"github.com/RajabovIlyas/golang-crud/internal/pkg/logger"
-	"github.com/rs/zerolog/log"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/cmd"
 )
 
 //	@title			Go Example REST API
@@ -22,16 +20,5 @@ import (
 //	@basePath	/api/v1
 
 func main() {
-	appLogger, err := logger.InitLogger()
-
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error initializing logger")
-		return
-	}
-
-	err = app.Run(appLogger)
-
-	if err != nil {
-		appLogger.Fatal().Msg(err.Error())
-	}
+	cmd.Execute()
 }

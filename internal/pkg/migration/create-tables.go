@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateDatabase(db *gorm.DB) {
+func InitMigrations(db *gorm.DB) {
 
 	if check := db.Migrator().HasTable(&models.Users{}); check == false {
 		_ = db.Migrator().CreateTable(&models.Users{})
@@ -18,5 +18,4 @@ func CreateDatabase(db *gorm.DB) {
 	if check := db.Migrator().HasTable(&models.Files{}); check == false {
 		_ = db.Migrator().CreateTable(&models.Files{})
 	}
-
 }
