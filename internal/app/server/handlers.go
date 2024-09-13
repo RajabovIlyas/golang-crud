@@ -9,35 +9,36 @@ import (
 	fileRepository "github.com/RajabovIlyas/golang-crud/internal/app/file/repository"
 	fileUseCase "github.com/RajabovIlyas/golang-crud/internal/app/file/usecase"
 	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
-	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	tokenRepository "github.com/RajabovIlyas/golang-crud/internal/app/token/repository"
 	tokenUseCase "github.com/RajabovIlyas/golang-crud/internal/app/token/usecase"
 	userHttp "github.com/RajabovIlyas/golang-crud/internal/app/user/delivery/http"
 	userRepository "github.com/RajabovIlyas/golang-crud/internal/app/user/repository"
 	userUseCase "github.com/RajabovIlyas/golang-crud/internal/app/user/usecase"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/httpResponse"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 )
 
 func (s *Server) MapHandlers(g *gin.Engine) error {
 
 	//Init Repository
 	uRepo := userRepository.NewUserRepository(s.db)
+	uRedisRepo := userRepository.NewUserRedisRepo(s.redisClient)
 	tRepo := tokenRepository.NewTokenRepository(s.db)
+	tRedisRepo := tokenRepository.NewTokenRedisRepo(s.redisClient)
 	fRepo := fileRepository.NewFileRepository(s.db)
 
 	// Init useCases
-	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, s.logger)
-	tokenUC := tokenUseCase.NewTokenUseCase(s.cfg, tRepo, s.logger)
+	userUC := userUseCase.NewUserUseCase(s.cfg, uRepo, uRedisRepo, s.logger)
+	tokenUC := tokenUseCase.NewTokenUseCase(s.cfg, tRepo, tRedisRepo, s.logger)
 	authUC := authUseCase.NewAuthUseCase(s.cfg, userUC, tokenUC, s.logger)
 	fileUC := fileUseCase.NewFileUseCase(s.cfg, fRepo, s.logger)
 	cronUC := cronUseCase.NewCronUC(tokenUC, s.logger)
 
 	// Init handlers
-	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC)
 	userHandlers := userHttp.NewUserHandlers(s.cfg, userUC)
+	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC)
 	fileHandlers := fileHttp.NewFileHandlers(s.cfg, fileUC)
 
 	mw := middleware.NewMiddlewareManager(s.cfg, userUC, tokenUC, s.logger)
@@ -49,16 +50,16 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	v1.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	health := v1.Group("/health")
-	authGroup := v1.Group("/auth")
 	userGroup := v1.Group("/users")
+	authGroup := v1.Group("/auth")
 	fileGroup := v1.Group("/files")
 
-	authHttp.MapAuthRoutes(authGroup, authHandlers, mw)
 	userHttp.MapUsersRoutes(userGroup, userHandlers)
+	authHttp.MapAuthRoutes(authGroup, authHandlers, mw)
 	fileHttp.MapFileRoutes(fileGroup, fileHandlers)
 
 	health.GET("", func(g *gin.Context) {
-		g.JSON(http.StatusOK, models.Message{Message: "OK"})
+		g.JSON(httpResponse.SuccessResponse("Hello world!"))
 	})
 
 	cronUC.DeleteAllToken()

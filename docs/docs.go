@@ -37,7 +37,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -220,7 +220,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -258,7 +258,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -296,7 +296,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -334,7 +334,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -379,7 +379,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ResponseUser"
+                            "$ref": "#/definitions/models.Users"
                         }
                     },
                     "500": {
@@ -475,7 +475,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ResponseUser": {
+        "models.Users": {
             "type": "object",
             "properties": {
                 "id": {

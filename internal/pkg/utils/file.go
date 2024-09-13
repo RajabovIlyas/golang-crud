@@ -2,23 +2,23 @@ package utils
 
 import (
 	"fmt"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"mime/multipart"
 )
 
-func GetFormatFile(file *multipart.FileHeader) database.Formats {
+func GetFormatFile(file *multipart.FileHeader) models.Formats {
 	switch file.Header.Get("Content-Type") {
 	case "image/jpeg", "image/png", "image/gif":
-		return database.FormatsPhoto
+		return models.FormatsPhoto
 	case "video/mp4", "video/quicktime", "video/x-msvideo", "video/x-flv":
-		return database.FormatsVideo
+		return models.FormatsVideo
 	case "audio/mpeg", "audio/x-wav", "audio/ogg", "audio/aac":
-		return database.FormatsMusic
+		return models.FormatsMusic
 	default:
-		return database.FormatsOther
+		return models.FormatsOther
 	}
 }
 
-func GetPathFileByFormat(format database.Formats, fileName string) string {
+func GetPathFileByFormat(format models.Formats, fileName string) string {
 	return fmt.Sprintf("./uploads/%v/%s", format, fileName)
 }

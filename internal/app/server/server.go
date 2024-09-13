@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"github.com/RajabovIlyas/golang-crud/config"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,12 +21,12 @@ const (
 type Server struct {
 	gin         *gin.Engine
 	cfg         *config.Config
-	db          *database.Queries
+	db          *gorm.DB
 	redisClient *redis.Client
 	logger      zerolog.Logger
 }
 
-func NewServer(gin *gin.Engine, cfg *config.Config, db *database.Queries, redisClient *redis.Client, logger zerolog.Logger) *Server {
+func NewServer(gin *gin.Engine, cfg *config.Config, db *gorm.DB, redisClient *redis.Client, logger zerolog.Logger) *Server {
 	return &Server{gin: gin, cfg: cfg, db: db, redisClient: redisClient, logger: logger}
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/RajabovIlyas/golang-crud/internal/app/token"
 	"github.com/RajabovIlyas/golang-crud/internal/app/user"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
@@ -62,6 +61,7 @@ func (a authUC) Logout(ctx context.Context, accessKeyStr string) error {
 }
 
 func (a authUC) Register(ctx context.Context, createUser models.CreateUser) (models.ResponseToken, error) {
+	createUser.Password, _ = utils.HashPassword(createUser.Password)
 	newUser, err := a.userUC.Create(ctx, createUser)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("authUC.Register: when try to create user")
@@ -101,7 +101,7 @@ func (a authUC) Refresh(ctx context.Context, refreshToken string) (models.Respon
 	return generatedToken, nil
 }
 
-func (a authUC) AuthMe(ctx context.Context, userIDStr string) (database.FindUserByIdRow, error) {
+func (a authUC) AuthMe(ctx context.Context, userIDStr string) (models.Users, error) {
 	foundUser, err := a.userUC.FindById(ctx, userIDStr)
 	if err != nil {
 		a.logger.Error().Err(err).Msgf("authUC.AuthMe(invalid userID): %s", userIDStr)

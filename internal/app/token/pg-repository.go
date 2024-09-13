@@ -1,17 +1,16 @@
 package token
 
 import (
-	"context"
-	"github.com/RajabovIlyas/golang-crud/internal/database"
+	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	"github.com/google/uuid"
 )
 
 type Repository interface {
-	FindByID(context.Context, uuid.UUID) (database.FindTokenByIdRow, error)
-	FindByAccessKey(context.Context, uuid.UUID) (database.FindTokenByAccessKeyRow, error)
-	Create(context.Context, uuid.UUID) (database.CreateTokenRow, error)
-	UpdateByID(context.Context, uuid.UUID) (database.UpdateTokenByIdRow, error)
-	DeleteByID(context.Context, uuid.UUID) error
-	DeleteByAccessKey(context.Context, uuid.UUID) error
-	DeleteOldTokens(context.Context) error
+	FindByID(uuid.UUID) (models.Tokens, error)
+	FindByAccessKey(uuid.UUID) (models.Tokens, error)
+	Create(uuid.UUID) (models.Tokens, error)
+	UpdateByID(uuid.UUID) (models.Tokens, error)
+	DeleteByID(uuid.UUID) (models.Tokens, error)
+	DeleteByAccessKey(uuid.UUID) (models.Tokens, error)
+	DeleteOldTokens() ([]models.Tokens, error)
 }

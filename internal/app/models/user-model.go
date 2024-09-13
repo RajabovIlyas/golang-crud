@@ -5,26 +5,29 @@ import (
 	"time"
 )
 
-type User struct {
-	ID        uuid.UUID `json:"id"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
 type CreateUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UpdateUser struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}
+
+type UpdateUserReq struct {
 	ID       string `json:"id"`
-	Username string `json:"username"`
+	Username string `json:"username" binding:"required"`
 }
 
 type UpdatePassword struct {
+	ID       uuid.UUID `json:"id"`
+	Password string    `json:"password"`
+}
+
+type UpdatePasswordReq struct {
 	ID       string `json:"id"`
-	Password string `json:"password"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UserLogin struct {
@@ -35,4 +38,12 @@ type UserLogin struct {
 type ResponseUser struct {
 	ID       uuid.UUID `json:"id"`
 	Username string    `json:"username"`
+}
+
+type Users struct {
+	ID        uuid.UUID `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
+	Username  string    `json:"username" gorm:"unique;not null"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	Password  string    `json:"-" gorm:"not null"`
 }
