@@ -23,6 +23,6 @@ type Tokens struct {
 	ID             uuid.UUID `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
 	AccessTokenKey uuid.UUID `json:"access_token_key" gorm:"type:uuid;default:gen_random_uuid()"`
 	UserID         uuid.UUID `json:"user_id" gorm:"not null"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	CreatedAt      time.Time `json:"-"`
+	UpdatedAt      time.Time `json:"-"`
 }

@@ -9,16 +9,15 @@ import (
 	fileRepository "github.com/RajabovIlyas/golang-crud/internal/app/file/repository"
 	fileUseCase "github.com/RajabovIlyas/golang-crud/internal/app/file/usecase"
 	"github.com/RajabovIlyas/golang-crud/internal/app/middleware"
-	"github.com/RajabovIlyas/golang-crud/internal/app/models"
 	tokenRepository "github.com/RajabovIlyas/golang-crud/internal/app/token/repository"
 	tokenUseCase "github.com/RajabovIlyas/golang-crud/internal/app/token/usecase"
 	userHttp "github.com/RajabovIlyas/golang-crud/internal/app/user/delivery/http"
 	userRepository "github.com/RajabovIlyas/golang-crud/internal/app/user/repository"
 	userUseCase "github.com/RajabovIlyas/golang-crud/internal/app/user/usecase"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/httpResponse"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 )
 
 func (s *Server) MapHandlers(g *gin.Engine) error {
@@ -60,7 +59,7 @@ func (s *Server) MapHandlers(g *gin.Engine) error {
 	fileHttp.MapFileRoutes(fileGroup, fileHandlers)
 
 	health.GET("", func(g *gin.Context) {
-		g.JSON(http.StatusOK, models.Message{Message: "OK"})
+		g.JSON(httpResponse.SuccessResponse("Hello world!"))
 	})
 
 	cronUC.DeleteAllToken()

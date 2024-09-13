@@ -1,10 +1,9 @@
 package middleware
 
 import (
-	"github.com/RajabovIlyas/golang-crud/internal/app/models"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/httpErrors"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strings"
 )
 
@@ -19,26 +18,26 @@ func (m *MiddlewareManager) AuthSessionMiddleware() gin.HandlerFunc {
 		}
 
 		if userToken == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You are not logged in"})
+			ctx.AbortWithStatusJSON(httpErrors.ErrorResponse(httpErrors.InvalidJWTToken))
 			return
 		}
 
 		accessKey, err := utils.ValidateToken[string](userToken, m.cfg.Server.JwtSecretKey)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You access token is invalid"})
+			ctx.AbortWithStatusJSON(httpErrors.ErrorResponse(httpErrors.InvalidJWTToken))
 			return
 		}
 
 		foundToken, err := m.tokenUC.FindTokenByAccessKey(ctx.Request.Context(), accessKey)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, models.Message{"You access token is invalid"})
+			ctx.AbortWithStatusJSON(httpErrors.ErrorResponse(httpErrors.InvalidJWTToken))
 			return
 		}
 
 		foundUser, err := m.userUC.FindById(ctx.Request.Context(), foundToken.UserID.String())
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, models.Message{"You access token is invalid"})
+			ctx.AbortWithStatusJSON(httpErrors.ErrorResponse(httpErrors.InvalidJWTToken))
 			return
 		}
 

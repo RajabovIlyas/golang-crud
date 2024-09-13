@@ -22,6 +22,10 @@ type CreateFile struct {
 	UserID   uuid.NullUUID `json:"user_id" `
 }
 
+type ResponseFile struct {
+	Url string `json:"url"`
+}
+
 type Files struct {
 	ID        uuid.UUID     `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
 	FileName  string        `json:"file_name" gorm:"not null"`
@@ -29,6 +33,6 @@ type Files struct {
 	Format    Formats       `json:"format" gorm:"not null"`
 	Size      int64         `json:"size" gorm:"not null"`
 	UserID    uuid.NullUUID `json:"user_id" `
-	CreatedAt time.Time     `json:"created_at" gorm:"not null;default:now()"`
-	UpdatedAt time.Time     `json:"updated_at" gorm:"not null;default:now()"`
+	CreatedAt time.Time     `json:"-" gorm:"not null;default:now()"`
+	UpdatedAt time.Time     `json:"-" gorm:"not null;default:now()"`
 }

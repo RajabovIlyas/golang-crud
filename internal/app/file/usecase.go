@@ -5,7 +5,7 @@ import (
 )
 
 type UseCase interface {
-	UploadFile(models.CreateFile) (string, error)
+	UploadFile(models.CreateFile) (models.ResponseFile, error)
 	FindFile(string) (models.Files, error)
 	DeleteFile(string) error
 }

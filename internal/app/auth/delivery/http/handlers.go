@@ -6,8 +6,9 @@ import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/auth"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/httpErrors"
+	"github.com/RajabovIlyas/golang-crud/internal/pkg/httpResponse"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type authHandlers struct {
@@ -33,17 +34,17 @@ func NewAuthHandlers(cfg *config.Config, authUC auth.UseCase) auth.Handlers {
 func (a authHandlers) Login(g *gin.Context) {
 	var newUser models.UserLogin
 	if err := g.BindJSON(&newUser); err != nil {
-		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
 	token, err := a.authUC.Login(context.Background(), newUser)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
-	g.JSON(http.StatusOK, token)
+	g.JSON(httpResponse.SuccessResponse(token))
 }
 
 // Registration
@@ -60,18 +61,18 @@ func (a authHandlers) Login(g *gin.Context) {
 func (a authHandlers) Registration(g *gin.Context) {
 	var createUser models.CreateUser
 	if err := g.BindJSON(&createUser); err != nil {
-		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
 	token, err := a.authUC.Register(context.Background(), createUser)
 
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
-	g.JSON(http.StatusOK, token)
+	g.JSON(httpResponse.CreatedResponse(token))
 }
 
 // LogoutMe
@@ -90,11 +91,11 @@ func (a authHandlers) LogoutMe(g *gin.Context) {
 	accessTokenKey, _ := g.Get("accessTokenKey")
 	err := a.authUC.Logout(context.Background(), fmt.Sprintf("%v", accessTokenKey))
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
-	g.JSON(http.StatusOK, models.Message{Message: "logged out"})
+	g.JSON(httpResponse.NoContentResponse("logged out"))
 }
 
 // AuthMe auth : Auth me
@@ -115,11 +116,11 @@ func (a authHandlers) AuthMe(g *gin.Context) {
 	user, err := a.authUC.AuthMe(context.Background(), fmt.Sprintf("%v", userID))
 
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
-	g.JSON(http.StatusOK, user)
+	g.JSON(httpResponse.SuccessResponse(user))
 }
 
 // RefreshToken Refresh : Refresh token.
@@ -136,16 +137,16 @@ func (a authHandlers) AuthMe(g *gin.Context) {
 func (a authHandlers) RefreshToken(g *gin.Context) {
 	var refreshToken models.RefreshTokenModel
 	if err := g.BindJSON(&refreshToken); err != nil {
-		g.JSON(http.StatusBadRequest, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
 	newToken, err := a.authUC.Refresh(context.Background(), refreshToken.RefreshToken)
 
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, models.ErrorModel{Error: err.Error()})
+		g.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
 
-	g.JSON(http.StatusOK, newToken)
+	g.JSON(httpResponse.SuccessResponse(newToken))
 }

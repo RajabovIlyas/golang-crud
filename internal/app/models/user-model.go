@@ -43,7 +43,7 @@ type ResponseUser struct {
 type Users struct {
 	ID        uuid.UUID `json:"id" gorm:"primary_key;type:uuid;default:gen_random_uuid()"`
 	Username  string    `json:"username" gorm:"unique;not null"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Password  string    `json:"password" gorm:"not null"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	Password  string    `json:"-" gorm:"not null"`
 }

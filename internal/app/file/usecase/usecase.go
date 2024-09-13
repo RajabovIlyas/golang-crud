@@ -20,14 +20,14 @@ func NewFileUseCase(cfg *config.Config, fileRepo file.Repository, logger zerolog
 	return &fileUC{cfg: cfg, fileRepo: fileRepo, logger: logger}
 }
 
-func (f fileUC) UploadFile(params models.CreateFile) (string, error) {
+func (f fileUC) UploadFile(params models.CreateFile) (models.ResponseFile, error) {
 	createdFile, err := f.fileRepo.Create(params)
 	if err != nil {
 		f.logger.Error().Err(err).Msgf("fileUC.UploadFile(create file)")
-		return "", err
+		return models.ResponseFile{}, err
 	}
 
-	return f.GenerateFileUrl(createdFile.FileName), nil
+	return models.ResponseFile{f.GenerateFileUrl(createdFile.FileName)}, nil
 }
 
 func (f fileUC) FindFile(fileName string) (models.Files, error) {
