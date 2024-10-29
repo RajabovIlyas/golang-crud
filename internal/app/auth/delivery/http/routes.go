@@ -11,5 +11,5 @@ func MapAuthRoutes(authGroups *gin.RouterGroup, uh auth.Handlers, m *middleware.
 	authGroups.POST("/registration", uh.Registration)
 	authGroups.POST("/logout", m.AuthSessionMiddleware(), uh.LogoutMe)
 	authGroups.GET("/auth-me", m.AuthSessionMiddleware(), uh.AuthMe)
-	authGroups.POST("/refresh-token", uh.RefreshToken)
+	authGroups.POST("/refresh-tokens", uh.RefreshToken)
 }

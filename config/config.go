@@ -52,7 +52,7 @@ func LoadConfig(filename string) (*viper.Viper, error) {
 	if err := v.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			return nil, errors.New("config file not found")
+			return nil, errors.New("config files not found")
 		}
 		return nil, err
 	}

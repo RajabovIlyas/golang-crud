@@ -6,8 +6,8 @@ import (
 	"github.com/RajabovIlyas/golang-crud/config"
 	"github.com/RajabovIlyas/golang-crud/internal/app/auth"
 	"github.com/RajabovIlyas/golang-crud/internal/app/models"
-	"github.com/RajabovIlyas/golang-crud/internal/app/token"
-	"github.com/RajabovIlyas/golang-crud/internal/app/user"
+	"github.com/RajabovIlyas/golang-crud/internal/app/tokens"
+	"github.com/RajabovIlyas/golang-crud/internal/app/users"
 	"github.com/RajabovIlyas/golang-crud/internal/pkg/utils"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
@@ -15,19 +15,19 @@ import (
 
 type authUC struct {
 	cfg     *config.Config
-	userUC  user.UseCase
-	tokenUC token.UseCase
+	userUC  users.UseCase
+	tokenUC tokens.UseCase
 	logger  zerolog.Logger
 }
 
-func NewAuthUseCase(cfg *config.Config, userUC user.UseCase, tokenUC token.UseCase, logger zerolog.Logger) auth.UseCase {
+func NewAuthUseCase(cfg *config.Config, userUC users.UseCase, tokenUC tokens.UseCase, logger zerolog.Logger) auth.UseCase {
 	return &authUC{cfg: cfg, userUC: userUC, tokenUC: tokenUC, logger: logger}
 }
 
 func (a authUC) Login(ctx context.Context, login models.UserLogin) (models.ResponseToken, error) {
 	foundUser, err := a.userUC.FindByUsername(ctx, login.Username)
 	if err != nil {
-		a.logger.Warn().Err(err).Str("username", login.Username).Msg("authUC.Login(user not found)")
+		a.logger.Warn().Err(err).Str("username", login.Username).Msg("authUC.Login(users not found)")
 		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
 
@@ -39,7 +39,7 @@ func (a authUC) Login(ctx context.Context, login models.UserLogin) (models.Respo
 
 	generatedToken, err := a.tokenUC.GenerateToken(ctx, foundUser.ID)
 	if err != nil {
-		a.logger.Error().Err(err).Str("username", foundUser.Username).Msg("authUC.Login(generate token)")
+		a.logger.Error().Err(err).Str("username", foundUser.Username).Msg("authUC.Login(generate tokens)")
 		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
 
@@ -54,7 +54,7 @@ func (a authUC) Logout(ctx context.Context, accessKeyStr string) error {
 	}
 	err = a.tokenUC.DeleteTokenByAccessKey(ctx, accessKey)
 	if err != nil {
-		a.logger.Error().Err(err).Msg("authUC.Logout(delete token by accessKey)")
+		a.logger.Error().Err(err).Msg("authUC.Logout(delete tokens by accessKey)")
 		return err
 	}
 	return nil
@@ -64,13 +64,13 @@ func (a authUC) Register(ctx context.Context, createUser models.CreateUser) (mod
 	createUser.Password, _ = utils.HashPassword(createUser.Password)
 	newUser, err := a.userUC.Create(ctx, createUser)
 	if err != nil {
-		a.logger.Error().Err(err).Msg("authUC.Register: when try to create user")
+		a.logger.Error().Err(err).Msg("authUC.Register: when try to create users")
 		return models.ResponseToken{}, err
 	}
 
 	generatedToken, err := a.tokenUC.GenerateToken(ctx, newUser.ID)
 	if err != nil {
-		a.logger.Error().Err(err).Str("username", newUser.Username).Msg("authUC.Login(generate token)")
+		a.logger.Error().Err(err).Str("username", newUser.Username).Msg("authUC.Login(generate tokens)")
 		return models.ResponseToken{}, errors.New("invalid username or password")
 	}
 
@@ -88,13 +88,13 @@ func (a authUC) Refresh(ctx context.Context, refreshToken string) (models.Respon
 
 	updatedToken, err := a.tokenUC.UpdateToken(ctx, tokenID)
 	if err != nil {
-		a.logger.Error().Err(err).Msg("authUC.Login(update token)")
+		a.logger.Error().Err(err).Msg("authUC.Login(update tokens)")
 		return models.ResponseToken{}, err
 	}
 
 	generatedToken, err := a.tokenUC.GenerateTokenByToken(models.GenerateTokenModel{ID: updatedToken.ID, AccessTokenKey: updatedToken.AccessTokenKey})
 	if err != nil {
-		a.logger.Error().Err(err).Msg("authUC.Login(generate token)")
+		a.logger.Error().Err(err).Msg("authUC.Login(generate tokens)")
 		return models.ResponseToken{}, err
 	}
 

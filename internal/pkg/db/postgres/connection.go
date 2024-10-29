@@ -9,7 +9,7 @@ import (
 
 func NewPsqlDB(cfg *config.Config) (*gorm.DB, error) {
 
-	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	sqlInfo := fmt.Sprintf("host=%s port=%s users=%s password=%s dbname=%s sslmode=disable",
 		cfg.Postgres.PostgresqlHost,
 		cfg.Postgres.PostgresqlPort,
 		cfg.Postgres.PostgresqlUser,

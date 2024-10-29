@@ -3,17 +3,17 @@ package usecase
 import (
 	"context"
 	"github.com/RajabovIlyas/golang-crud/internal/app/cron-job"
-	"github.com/RajabovIlyas/golang-crud/internal/app/token"
+	"github.com/RajabovIlyas/golang-crud/internal/app/tokens"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog"
 )
 
 type cronUC struct {
-	tokenUC token.UseCase
+	tokenUC tokens.UseCase
 	logger  zerolog.Logger
 }
 
-func NewCronUC(tokenUC token.UseCase, logger zerolog.Logger) cronJob.UseCase {
+func NewCronUC(tokenUC tokens.UseCase, logger zerolog.Logger) cronJob.UseCase {
 	return &cronUC{tokenUC, logger}
 }
 

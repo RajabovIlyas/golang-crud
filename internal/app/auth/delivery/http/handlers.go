@@ -22,12 +22,12 @@ func NewAuthHandlers(cfg *config.Config, authUC auth.UseCase) auth.Handlers {
 
 // Login
 //
-//	@Summary		Login user
-//	@Description	Login user
+//	@Summary		Login users
+//	@Description	Login users
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.CreateUser	true	"Login user"
+//	@Param			users	body		models.CreateUser	true	"Login users"
 //	@Success		200		{object}	models.ResponseToken
 //	@Failure		500		{object}	models.ErrorModel
 //	@Router			/auth/login [post]
@@ -49,12 +49,12 @@ func (a authHandlers) Login(g *gin.Context) {
 
 // Registration
 //
-//	@Summary		Registration user
-//	@Description	Registration user
+//	@Summary		Registration users
+//	@Description	Registration users
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.CreateUser	true	"Add user"
+//	@Param			users	body		models.CreateUser	true	"Add users"
 //	@Success		200		{object}	models.ResponseToken
 //	@Failure		500		{object}	models.ErrorModel
 //	@Router			/auth/registration [post]
@@ -79,8 +79,8 @@ func (a authHandlers) Registration(g *gin.Context) {
 //
 //	@Security		ApiKeyAuth
 //
-//	@Summary		Logout user
-//	@Description	Logout user
+//	@Summary		Logout users
+//	@Description	Logout users
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
@@ -123,17 +123,17 @@ func (a authHandlers) AuthMe(g *gin.Context) {
 	g.JSON(httpResponse.SuccessResponse(user))
 }
 
-// RefreshToken Refresh : Refresh token.
+// RefreshToken Refresh : Refresh tokens.
 //
 //	@Summary		Refresh Token
 //	@Description	Refresh Token
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.RefreshTokenModel	true	"Refresh token"
+//	@Param			users	body		models.RefreshTokenModel	true	"Refresh tokens"
 //	@Success		200		{object}	models.ResponseToken
 //	@Failure		500		{object}	models.ErrorModel
-//	@Router			/auth/refresh-token [post]
+//	@Router			/auth/refresh-tokens [post]
 func (a authHandlers) RefreshToken(g *gin.Context) {
 	var refreshToken models.RefreshTokenModel
 	if err := g.BindJSON(&refreshToken); err != nil {

@@ -14,7 +14,7 @@ func init() {
 
 var rootCmd = &cobra.Command{
 	Use:   "golang-crud",
-	Short: "Brief description of a CRUD application with authorization and file uploading.",
+	Short: "Brief description of a CRUD application with authorization and files uploading.",
 	Long:  `This application allows users to perform basic operations on data in a database. In this scenario`,
 	Run: func(cmd *cobra.Command, args []string) {
 		appLogger, err := logger.InitLogger()

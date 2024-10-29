@@ -36,13 +36,13 @@ func ValidateToken[T any](tokenString string, secretJWTKey string) (payload T, e
 		return []byte(secretJWTKey), nil
 	})
 	if err != nil {
-		err = fmt.Errorf("invalid token %v", err)
+		err = fmt.Errorf("invalid tokens %v", err)
 		return
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		err = fmt.Errorf("invalid token")
+		err = fmt.Errorf("invalid tokens")
 		return
 	}
 

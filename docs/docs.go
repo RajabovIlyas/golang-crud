@@ -51,7 +51,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Login user",
+                "description": "Login users",
                 "consumes": [
                     "application/json"
                 ],
@@ -61,11 +61,11 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login user",
+                "summary": "Login users",
                 "parameters": [
                     {
-                        "description": "Login user",
-                        "name": "user",
+                        "description": "Login users",
+                        "name": "users",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -96,7 +96,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Logout user",
+                "description": "Logout users",
                 "consumes": [
                     "application/json"
                 ],
@@ -106,7 +106,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Logout user",
+                "summary": "Logout users",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -123,7 +123,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh-token": {
+        "/auth/refresh-tokens": {
             "post": {
                 "description": "Refresh Token",
                 "consumes": [
@@ -138,8 +138,8 @@ const docTemplate = `{
                 "summary": "Refresh Token",
                 "parameters": [
                     {
-                        "description": "Refresh token",
-                        "name": "user",
+                        "description": "Refresh tokens",
+                        "name": "users",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -165,7 +165,7 @@ const docTemplate = `{
         },
         "/auth/registration": {
             "post": {
-                "description": "Registration user",
+                "description": "Registration users",
                 "consumes": [
                     "application/json"
                 ],
@@ -175,11 +175,11 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Registration user",
+                "summary": "Registration users",
                 "parameters": [
                     {
-                        "description": "Add user",
-                        "name": "user",
+                        "description": "Add users",
+                        "name": "users",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -232,7 +232,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create new user record in Library",
+                "description": "Create new users record in Library",
                 "consumes": [
                     "application/json"
                 ],
@@ -242,11 +242,11 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Create new user record in Library",
+                "summary": "Create new users record in Library",
                 "parameters": [
                     {
-                        "description": "Add user",
-                        "name": "user",
+                        "description": "Add users",
+                        "name": "users",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -272,7 +272,7 @@ const docTemplate = `{
         },
         "/users/password/{id}": {
             "delete": {
-                "description": "Delete user record by id",
+                "description": "Delete users record by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -282,7 +282,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete user record by id",
+                "summary": "Delete users record by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -310,7 +310,7 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "description": "Return user by id",
+                "description": "Return users by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -320,7 +320,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Return user by id",
+                "summary": "Return users by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -346,7 +346,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update user details",
+                "description": "Update users details",
                 "consumes": [
                     "application/json"
                 ],
@@ -356,7 +356,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update user details",
+                "summary": "Update users details",
                 "parameters": [
                     {
                         "type": "string",
@@ -366,8 +366,8 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Update user",
-                        "name": "user",
+                        "description": "Update users",
+                        "name": "users",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -391,7 +391,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete user record by id",
+                "description": "Delete users record by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -401,7 +401,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete user record by id",
+                "summary": "Delete users record by id",
                 "parameters": [
                     {
                         "type": "string",

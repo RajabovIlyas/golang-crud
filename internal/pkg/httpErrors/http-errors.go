@@ -20,7 +20,7 @@ const (
 	ErrUnauthorized       = "Unauthorized"
 	ErrForbidden          = "Forbidden"
 	ErrBadQueryParams     = "Invalid query params"
-	ErrBadToken           = "Invalid token"
+	ErrBadToken           = "Invalid tokens"
 )
 
 var (
@@ -35,7 +35,7 @@ var (
 	InternalServerError = errors.New("Internal Server Error")
 	RequestTimeoutError = errors.New("Request Timeout")
 	ExistsEmailError    = errors.New("User with given email already exists")
-	InvalidJWTToken     = errors.New("Invalid JWT token")
+	InvalidJWTToken     = errors.New("Invalid JWT tokens")
 	InvalidJWTClaims    = errors.New("Invalid JWT claims")
 	ErrorConnDB         = errors.New("Error connecting to database")
 )
@@ -162,7 +162,7 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, BadRequest.Error(), err)
 	case strings.Contains(err.Error(), "UUID"):
 		return NewRestError(http.StatusBadRequest, err.Error(), err)
-	case strings.Contains(strings.ToLower(err.Error()), "token"):
+	case strings.Contains(strings.ToLower(err.Error()), "tokens"):
 		return NewRestError(http.StatusUnauthorized, Unauthorized.Error(), err)
 	default:
 		if restErr, ok := err.(RestErr); ok {
